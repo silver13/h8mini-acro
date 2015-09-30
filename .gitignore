@@ -1,3 +1,13 @@
+output/
+
+*.dep
+*.bak
+
+*.map
+
+*.lst
+*.crf
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
