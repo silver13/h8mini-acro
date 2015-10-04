@@ -141,9 +141,11 @@ int decodepacket( void)
 			rx[3] = ( (rxdata[8]&0x0003) * 256 + rxdata[9] ) * 0.000976562;
 
 		// trims are 50% of controls at max		
-			rx[0] = rx[0] + 0.03225 * 0.5 * (float)(((rxdata[4])>>2) - 31);
-			rx[1] = rx[1] + 0.03225 * 0.5 * (float)(((rxdata[6])>>2) - 31);
-			rx[2] = rx[2] + 0.03225 * 0.5 * (float)(((rxdata[10])>>2) - 31);
+	// trims are not used because they interfere with dynamic trims feature of devo firmware
+			
+//			rx[0] = rx[0] + 0.03225 * 0.5 * (float)(((rxdata[4])>>2) - 31);
+//			rx[1] = rx[1] + 0.03225 * 0.5 * (float)(((rxdata[6])>>2) - 31);
+//			rx[2] = rx[2] + 0.03225 * 0.5 * (float)(((rxdata[10])>>2) - 31);
 				
 			rx[4] = (rxdata[2] &  0x08)?1:0; // flip channel
 			rx[5] = (rxdata[1] == 0xfa)?1:0; // expert mode

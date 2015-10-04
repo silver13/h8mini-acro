@@ -53,11 +53,14 @@ float motormap( float input);
 
 void control( void)
 {
-	
+
+
+#ifndef DISABLE_EXPO
 	rx[0] = rcexpo ( rx[0] , EXPO_XY );
   rx[1] = rcexpo ( rx[1] , EXPO_XY ); 
   rx[2] = rcexpo ( rx[2] , EXPO_YAW ); 	
-	
+#endif
+
 	// hi rates
 	float ratemulti;
 	float ratemultiyaw;

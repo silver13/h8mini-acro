@@ -7,9 +7,15 @@
 #define MAX_RATE 180.0
 #define MAX_RATEYAW 360.0
 
-// -1 to 1 , 0 = no expo
-#define EXPO_XY 0.4
+// disable inbuilt expo functions
+#define DISABLE_EXPO
+
+// use if your tx has no expo function
+// -1 to 1 , 0 = no exp
+// positive = less sensitive near center 
+#define EXPO_XY 0.3
 #define EXPO_YAW 0.0
+
 
 // multiplier for high rates
 #define HIRATEMULTI 1.5
@@ -23,7 +29,11 @@
 // battery saver
 // do not start software if battery is too low
 // flashes 2 times repeatedly at startup
+
 //#define STOP_LOWBATTERY
+
+// under this voltage the software will not start 
+// if STOP_LOWBATTERY is defined above
 #define STOP_LOWBATTERY_TRESH 3.3
 
 // voltage to start warning

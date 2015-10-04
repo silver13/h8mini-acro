@@ -25,46 +25,55 @@ void spi_init(void)
 	
 }
 
+
+#define gpioset( port , pin) port->BOR = (0x0001 << pin)
+#define gpioreset( port , pin) port->BCR = (0x0001 << pin)
+
 void mosihigh( )
 {
-	GPIO_WriteBit(GPIOB, GPIO_PIN_3, Bit_SET);
+	//GPIO_WriteBit(GPIOB, GPIO_PIN_3, Bit_SET);
+	//GPIOB->BOR = GPIO_PIN_3;
+	gpioset( GPIOB, 3);
 }
 
 void sckhigh( )
 {
-	GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_SET);	
+	//GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_SET);
+  //GPIOB->BOR = GPIO_PIN_4;
+  gpioset( GPIOB, 4);	
 }
 
 
 void scklow( )
 {
-GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_RESET);	
-}
-
-void sckpulse( )
-{
-	GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_SET);
-	//delay(100);
-	GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_RESET);
+//GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_RESET);	
+	//GPIOB->BCR = GPIO_PIN_4;
+	gpioreset( GPIOB, 4);
 }
 
 void mosilow( )
 {
-	GPIO_WriteBit(GPIOB, GPIO_PIN_3, Bit_RESET);
+	//GPIO_WriteBit(GPIOB, GPIO_PIN_3, Bit_RESET);
+	//GPIOB->BCR = GPIO_PIN_3;
+	gpioreset( GPIOB, 3);
 }
 void spi_cson( )
 {
 	GPIO_WriteBit(GPIOB, GPIO_PIN_5, Bit_RESET);
+	//gpioset( GPIOB, 5);
 }
 
 void spi_csoff( )
 {
 	GPIO_WriteBit(GPIOB, GPIO_PIN_5, Bit_SET);
+	//gpioset( GPIOB, 5);
 }
+
 
 int readmiso()
 {
-	return GPIO_ReadInputBit( GPIOA, GPIO_PIN_15)	;
+	//return GPIO_ReadInputBit( GPIOA, GPIO_PIN_15)	;
+	return ((GPIOA->DIR & GPIO_PIN_15) != (uint32_t)Bit_RESET);
 }
 
 
