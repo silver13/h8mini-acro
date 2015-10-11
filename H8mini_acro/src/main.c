@@ -46,14 +46,14 @@ THE SOFTWARE.
 #include "drv_spi.h"
 #include "control.h"
 #include "defines.h"
+#include "drv_i2c.h"
+
+#include "binary.h"
 
 #include <inttypes.h>
 
 // hal
 void clk_init(void);
-
-
-
 
 float looptime;
 
@@ -69,7 +69,8 @@ int main(void)
 #ifdef SERIAL	
 	serial_init();
 #endif
-	softi2c_init();
+//	softi2c_init();
+	i2c_init();
 	
 	spi_init();
 	
@@ -100,7 +101,6 @@ int main(void)
 	#endif
   failloop( 5 );
 	}
-
 
 	sixaxis_init();
 	
@@ -133,7 +133,11 @@ while ( count < 64 )
  vbattfilt = vbattfilt/64;	
 
 #ifdef SERIAL	
-		printf( "Vbatt %2.2f \n", vbattfilt );	
+		printf( "Vbatt %2.2f \n", vbattfilt );
+#ifdef NOMOTORS
+    printf( "NO MOTORS\n" );
+#warning "NO MOTORS"
+#endif
 #endif
 	
 #ifdef STOP_LOWBATTERY
@@ -143,6 +147,14 @@ if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
 
 	gyro_cal();
 
+extern unsigned int liberror;
+if ( liberror ) 
+{
+	  #ifdef SERIAL	
+		printf( "ERROR: I2C \n" );	
+		#endif
+		failloop(7);
+}
 
  static unsigned lastlooptime; 
  lastlooptime = gettime();
@@ -150,7 +162,7 @@ if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
  extern int failsafe;
 
 //float vbattfilt = 3.0;
- float pwmfilt;
+ float thrfilt;
 
 //
 //
@@ -160,15 +172,23 @@ if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
 
 	while(1)
 	{
+		// gettime() needs to be called at least once per second 
 		unsigned long time = gettime();
 		looptime = ((uint32_t)( time - lastlooptime));
 		if ( looptime <= 0 ) looptime = 1;
 		looptime = looptime * 1e-6;
-		if ( looptime > 1.0 )
+		if ( looptime > 0.02 ) // max loop 20ms or else...
 		{
-			failloop( 3);			
+			failloop( 3);	
+			//endless loop			
 		}
 		lastlooptime = time;
+		
+		if ( liberror > 20) 
+		{
+			failloop(8);
+			// endless loop
+		}
 		
 		checkrx();
 		
@@ -179,18 +199,18 @@ if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
 // battery low logic
 		int lowbatt = 0;
 		float battadc = adc_read(1);
-		// average of all 4 motor thrusts
-		// should be proportional with battery current		
-		extern float pwmsum; // from control.c	
 
+		// average of all 4 motor thrusts
+		// should be proportional with battery current			
+		extern float thrsum; // from control.c
 		// filter motorpwm so it has the same delay as the filtered voltage
 		// ( or they can use a single filter)		
-		lpf ( &pwmfilt , pwmsum , 0.994);	// 0.5 sec at 3ms loop time	
+		lpf ( &thrfilt , thrsum , 0.9968);	// 0.5 sec at 1.6ms loop time	
 		//printf(" %2.2f \n" , pwmfilt);	
 		
-		lpf ( &vbattfilt , battadc , 0.994);		
-		//printf(" %2.2f " , vbattfilt);
-		if ( vbattfilt + VDROP_FACTOR * pwmfilt < VBATTLOW + (lowbatt==1)?HYST:0 ) lowbatt = 1;
+		lpf ( &vbattfilt , battadc , 0.9968);		
+		//printf(" %2.2f \n" , vbattfilt);
+		if ( vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW + (lowbatt==1)?HYST:0 ) lowbatt = 1;
 		
 // led flash logic		
 		if ( rxmode == 0)
@@ -219,6 +239,12 @@ if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
 
 }
 
+// 2 - low battery at powerup - if enabled by config
+// 3 - loop time issue
+// 4 - Gyro not found
+// 5 - clock , intterrupts , systick
+// 7 - i2c error 
+// 8 - i2c error main loop
 
 void failloop( int val)
 {

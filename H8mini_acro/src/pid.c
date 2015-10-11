@@ -32,21 +32,20 @@ THE SOFTWARE.
 #define PIDNUMBER 3
 				
 // this Kp is used for a normal PID ( PI-D , really )
-float pidkp[PIDNUMBER] = { 0.0e-2 , 0.0e-2  , 1.3e-1 }; 
+float pidkp[PIDNUMBER] = { 0.0e-2 , 0.0e-2  , 10e-1 }; 
 //  											ROLL       PITCH     YAW
 // this Kp2 is used for a I-PD controller instead of the above PID
-float pidkp2[PIDNUMBER] = { 4.5e-2 , 4.5e-2 , 0e-2 };	
+float pidkp2[PIDNUMBER] = { 13.5e-2 , 13.5e-2 ,  0e-2 };	
 // Ki
-float pidki[PIDNUMBER] = { 6.5e-1  , 6.5e-1 , 2.5e-1 };	
+float pidki[PIDNUMBER] = { 19.5e-1  , 19.5e-1 , 50e-1 };	
 // Kd											ROLL       PITCH     YAW
-float pidkd[PIDNUMBER] = { 3.0e-1 , 3.0e-1  , 5.0e-1 };	
+float pidkd[PIDNUMBER] = { 5.8e-1 , 5.8e-1  , 5.0e-1 };	
 
 // limit of integral term (abs)
 #define ITERMLIMIT_FLOAT 1.0	
-				
-#define OUTLIMIT_FLOAT 1.0
-#define OUTLIMIT_FLOATYAW 0.4	
-				
+			
+const float outlimit[3] = { 1.0 , 1.0 , 0.4 };
+
 float ierror[PIDNUMBER] = { 0 , 0 , 0};	
 float lastrate[PIDNUMBER];
 float pidoutput[3];
@@ -64,11 +63,31 @@ float pid(int x )
            ierror[x] *= 0.8;
 				}
 	
+				int iwindup = 0;
+				if (( pidoutput[x] == outlimit[x] )&& ( error[x] > 0) )
+				{
+					iwindup = 1;		
+				}
+				if (( pidoutput[x] == -outlimit[x])&& ( error[x] < 0) )
+				{
+					iwindup = 1;				
+				}
+        if ( !iwindup)
+				{
          ierror[x] = ierror[x] + error[x] *  pidki[x] * looptime; 
-					
+				}
+				
+       //  ierror[x] = ierror[x] + error[x] *  pidki[x] * looptime; 
+						
+		if ( x != 2)
+		{	
          if ( ierror[x]  > ITERMLIMIT_FLOAT) ierror[x] = ITERMLIMIT_FLOAT;
 				 if ( ierror[x]  < -ITERMLIMIT_FLOAT) ierror[x] = -ITERMLIMIT_FLOAT;
- 
+		}else
+		{
+			limitf( &ierror[x] , 0.2 );
+		}
+		
 				// P term
           pidoutput[x] = error[x] * pidkp[x] ;
 			
@@ -83,8 +102,7 @@ float pid(int x )
 					// D term
 					pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x]) * pidkd[x]; 
 					
-					if ( x == 2) limitf(  &pidoutput[x] , OUTLIMIT_FLOATYAW);
-					else limitf(  &pidoutput[x] , OUTLIMIT_FLOAT);
+				  limitf(  &pidoutput[x] , outlimit[x]);
 					
 lastrate[x] = gyro[x];	
 

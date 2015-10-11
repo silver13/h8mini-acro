@@ -4,9 +4,9 @@
 void gpio_init(void)
 {
 // clocks on to all ports		
-    RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_GPIOA,ENABLE);
-	  RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_GPIOB,ENABLE); 
-	  RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_GPIOF,ENABLE);
+    RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_GPIOA|RCC_AHBPERIPH_GPIOB|RCC_AHBPERIPH_GPIOF,ENABLE);
+	 // RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_GPIOB,ENABLE); 
+	 // RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_GPIOF,ENABLE);
 
 	
     GPIO_InitPara GPIO_InitStructure;

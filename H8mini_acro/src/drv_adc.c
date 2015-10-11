@@ -42,14 +42,14 @@ void adc_init(void)
     ADC_InitStructure.ADC_Channel_Number = 4;  
 		
     ADC_Init(&ADC_InitStructure);  
-    // not connected (?)
-    ADC_RegularChannel_Config(ADC_CHANNEL_VBAT, 1, ADC_SAMPLETIME_239POINT5);
+    // current?
+    ADC_RegularChannel_Config(ADC_CHANNEL_7, 1, ADC_SAMPLETIME_239POINT5);
 		// battery channel
     ADC_RegularChannel_Config(ADC_CHANNEL_5, 2, ADC_SAMPLETIME_239POINT5);
-		// the channels below are random
-    ADC_RegularChannel_Config(ADC_CHANNEL_6, 3, ADC_SAMPLETIME_239POINT5);
-    ADC_RegularChannel_Config(ADC_CHANNEL_7, 4, ADC_SAMPLETIME_239POINT5);
-    
+
+    ADC_RegularChannel_Config(ADC_CHANNEL_4, 3, ADC_SAMPLETIME_239POINT5);
+    ADC_RegularChannel_Config(ADC_CHANNEL_1, 4, ADC_SAMPLETIME_239POINT5);
+
     ADC_DMA_Enable(ENABLE);	 
     
     ADC_Enable(ENABLE); 
@@ -76,7 +76,7 @@ float adc_read(int channel)
 		//break;
 		
 		case 3:
-		return adcarray[3];	
+		return adcarray[3];
 		//break;	
 		
 		default:

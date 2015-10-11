@@ -6,9 +6,6 @@
 #include "xn297.h"
 
 
-
-#define PAYLOAD_LEN 15
-
 void xn_writereg( int reg , int val)
 {
 	reg = reg&0x0000003F;
@@ -82,7 +79,7 @@ void xn_writerxaddress(  int *addr )
  int index = 0;
 spi_cson();
 spi_sendbyte(0x2a);
-		while(index<5)
+	while(index<5)
 	{
 	spi_sendbyte( addr[index] );
 	index++;

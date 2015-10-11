@@ -20,7 +20,7 @@ void time_init()
 	// 72000000 / (8 (internal div) * 9 ) 
   if (SysTick_Config(SystemCoreClock / (9) )) //1sec interrupts
     {// not able to set divider
-			  failloop(8);
+			  failloop(5);
         while (1);
     }
     NVIC_SetPriority(SysTick_IRQn, 0x00);	

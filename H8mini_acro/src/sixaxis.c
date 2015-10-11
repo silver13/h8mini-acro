@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "led.h"
 #include "drv_serial.h"
 
+#include "drv_i2c.h"
 
 #include <math.h>
 
@@ -46,26 +47,36 @@ THE SOFTWARE.
 #endif
 
 
+
 void sixaxis_init( void)
 {
 // gyro soft reset
- softi2c_write(UNK_INVENSENSE_ADDRESS, 107, 128 );
+// softi2c_write(UNK_INVENSENSE_ADDRESS, 107, 128 );
 	
-delay(40000);
+ i2c_writereg( 107 , 128);	
+	 
+ delay(40000);
 	// gyro scale 2000 deg (FS =3)
- softi2c_write(UNK_INVENSENSE_ADDRESS, 27, 24 );
+// softi2c_write(UNK_INVENSENSE_ADDRESS, 27, 24 );
+
+ i2c_writereg( 27 , 24);	
 	
-	softi2c_write(UNK_INVENSENSE_ADDRESS, 28, B00001000 ); // acc scale
+//	softi2c_write(UNK_INVENSENSE_ADDRESS, 28, B00001000 ); // acc scale
+	
+	i2c_writereg( 28 , B00001000);	
 	
 	// Gyro and acc DLPF low pass filter
- softi2c_write(UNK_INVENSENSE_ADDRESS, 26, UNK_INVENSENSE_DLPF_CFG ); 	
+ //softi2c_write(UNK_INVENSENSE_ADDRESS, 26, UNK_INVENSENSE_DLPF_CFG ); 
+
+i2c_writereg( 26 , UNK_INVENSENSE_DLPF_CFG);		
 }
 
 
 int sixaxis_check( void)
 {
 	// read "who am I" register
- return (0x78==softi2c_read( UNK_INVENSENSE_ADDRESS , 117 ) ); 	
+// return (0x78==softi2c_read( UNK_INVENSENSE_ADDRESS , 117 ) ); 	
+	return (0x78==i2c_readreg( 117 ));
 }
 
 
@@ -75,76 +86,16 @@ float gyro[3];
 
 float gyrocal[3];
 
-void sixaxis_read( void)
-{
-int data[16];
-	
-softi2c_readdata( 0x68 , 59 , data, 14 );
-
-//for ( int i = 0 ; i <= 13; i = i+ 1)
-//{		
-	//reg1	= (uint16_t) softi2c_read( 208 , i );	
-
-//	printf(" %d "   , data[i]);	
-
-//}
-//delay(2000);
-
-
-accel[0] = (int16_t) ((data[0]<<8) + data[1]);
-accel[1] = (int16_t) ((data[2]<<8) + data[3]);
-accel[2] = (int16_t) ((data[4]<<8) + data[5]);
-
-//	
-//printf("accel0 %f "   , accel[0]);
-//printf("accel1 %f "   , accel[1]);
-//printf("accel2 %f "   , accel[2]);
-
-
-#ifdef QUAD2
-accel[0] += -300;
-accel[1] += -79;
-accel[2] += -111;	
-#else
-accel[0] += -330;
-accel[1] += 210;
-accel[2] += 0;
-#endif
-
-gyro[1] = (int16_t) ((data[8]<<8) + data[9]);
-gyro[0] = (int16_t) ((data[10]<<8) + data[11]);
-gyro[2] = (int16_t) ((data[12]<<8) + data[13]);
-
-
-gyro[0] = gyro[0] - gyrocal[0];
-gyro[1] = gyro[1] - gyrocal[1];
-gyro[2] = gyro[2] - gyrocal[2];
-
-gyro[0] = - gyro[0];
-gyro[2] = - gyro[2];
-
-//printf("gyro0 %f "   , gyro[0]);
-//printf("gyro1 %f "   , gyro[1]);
-//printf("gyro2 %f "   , gyro[2]);
-//printf("\n");
-
-
-for ( int i = 0 ; i < 3; i++)
-{
-	gyro[i] = gyro[i] *  0.061035156 * 0.017453292 ;
-}
-
-
-}
-
-
 
 void gyro_read( void)
 {
 int data[6];
 	
-softi2c_readdata( 0x68 , 67 , data , 6 );
+//softi2c_readdata( 0x68 , 67 , data , 6 );
 
+	
+ i2c_readdata( 67 , data, 6 );
+	
 gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
 gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
 gyro[2] = (int16_t) ((data[4]<<8) + data[5]);
@@ -184,7 +135,7 @@ unsigned long timemax = time;
 unsigned long lastlooptime;
 
 	
-
+// 2 and 15 seconds
 while ( time - timestart < 2e6  &&  time - timemax < 15e6 )
 	{	
 		
@@ -193,8 +144,10 @@ while ( time - timestart < 2e6  &&  time - timemax < 15e6 )
 		lastlooptime = time;
 		if ( looptime == 0 ) looptime = 1;
 		
-		softi2c_readdata( 0x68 , 67 , data, 6 );
+		//softi2c_readdata( 0x68 , 67 , data, 6 );
 
+ i2c_readdata( 67 , data, 6 );
+		
 		gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
 		gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
 		gyro[2] = (int16_t) ((data[4]<<8) + data[5]);	

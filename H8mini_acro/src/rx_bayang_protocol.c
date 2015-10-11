@@ -152,9 +152,11 @@ int decodepacket( void)
 			rx[6] = (rxdata[2] &  0x02)?1:0; // headless channel
 			return 1;	// valid packet	
 		}
+	 return 0; // sum fail
 	}
-return 0; // failed "crc"
+return 0; // first byte different
 }
+
 
 	int rfchannel[4];
 	int rxaddress[5];
@@ -171,9 +173,20 @@ void nextchannel()
 
 unsigned long lastrxtime;
 unsigned long failsafetime;
+unsigned long secondtimer;
 
 int failsafe = 0;
 
+
+//#define RXDEBUG
+
+#ifdef RXDEBUG	
+unsigned long packettime;
+int channelcount[4];
+int failcount;
+int packetrx;
+int packetpersecond;
+#endif
 
 void checkrx( void)
 {
@@ -207,25 +220,51 @@ void checkrx( void)
 				}
 			}
 			else
-			{	// normal mode				
-				nextchannel();	
+			{	// normal mode	
+				#ifdef RXDEBUG	
+				channelcount[chan]++;	
+				packettime = gettime() - lastrxtime;
+				#endif
+
+				// due to spi being slow we skip one additional channel
+				chan++;
+				
+				nextchannel(); // includes++		
+				
+				lastrxtime = gettime();				
 				xn_readpayload( rxdata , 15);
 				pass = decodepacket();
-				lastrxtime = gettime(); 
+				 
 				if (pass)
-				{
+				{ 
+					#ifdef RXDEBUG	
+					if ( gettime() - secondtimer  > 1000000)
+					{
+						packetpersecond = packetrx;
+						packetrx = 0;
+						secondtimer = gettime();
+					}
+					packetrx++;
+					#endif
 					failsafetime = lastrxtime; 
 					failsafe = 0;
 				}	
+				else
+				{
+				#ifdef RXDEBUG	
+				failcount++;
+				#endif	
+				}
+			
 			}// end normal rx mode
 				
 		}// end packet received
 		unsigned long time = gettime();
 		
-    // packet period 12000
-		if( time - lastrxtime > 27000 && rxmode != 0)
+    // sequence period 12000
+		if( time - lastrxtime > 9000 && rxmode != 0)
 		{//  channel with no reception	 
-		 lastrxtime = time; 		 
+		 lastrxtime = time;
 		 nextchannel();	
 		}
 		if( time - failsafetime > FAILSAFETIME )

@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "drv_pwm.h"
 #include "control.h"
 #include "defines.h"
+#include "drv_time.h"
 
 
 extern float rx[7];
@@ -41,15 +42,13 @@ extern float pidoutput[3];
 
 int onground = 1;
 float pwmsum;
+float thrsum;
 
 float error[3];
-
-//float rateerror[3];
-
 float motormap( float input);
-
-//float mapf(float x, float in_min, float in_max, float out_min, float out_max);
-
+int lastchange;
+int pulse;
+//static unsigned long timestart = 0;
 
 void control( void)
 {
@@ -64,8 +63,8 @@ void control( void)
 	// hi rates
 	float ratemulti;
 	float ratemultiyaw;
-	
-	if (rx[5] > 0.5) 
+
+	if (rx[5] > 0.5 ) 
 	{
 		ratemulti = HIRATEMULTI;
 		ratemultiyaw = HIRATEMULTIYAW;
@@ -75,6 +74,35 @@ void control( void)
 		ratemulti = 1.0;
 		ratemultiyaw = 1.0;
 	}
+
+/*	
+int change = (rx[5] > 0.5);
+
+if ( change != lastchange )
+{
+	pulse = 1;
+}
+lastchange = change;
+
+float motorchange = 0;
+
+if ( pulse )
+{
+	if ( !timestart) timestart = gettime();
+	
+	
+	if ( gettime() - timestart < 200000 )
+	{
+		motorchange = 0.2;	
+	}
+	else
+	{
+		motorchange = 0.0;
+		pulse = 0;
+		timestart = 0;
+	}
+}
+*/
 	
 	error[0] = rx[0] * MAX_RATE * DEGTORAD * ratemulti - gyro[0];
 	error[1] = rx[1] * MAX_RATE * DEGTORAD * ratemulti - gyro[1];
@@ -99,13 +127,16 @@ if ( throttle < 0   ) throttle = 0;
 			pwm_set( i , 0 );
 			onground = 1;
 			pwmsum = 0;
+			thrsum = 0;
 		}	
 	}
 	else
 	{
 		onground = 0;
 		float mix[4];	
-
+		
+//		pidoutput[2] += motorchange;
+		
 		mix[MOTOR_FR] = throttle - pidoutput[0] - pidoutput[1] + pidoutput[2];		// FR
 		mix[MOTOR_FL] = throttle + pidoutput[0] - pidoutput[1] - pidoutput[2];		// FL	
 		mix[MOTOR_BR] = throttle - pidoutput[0] + pidoutput[1] - pidoutput[2];		// BR
@@ -114,7 +145,9 @@ if ( throttle < 0   ) throttle = 0;
 		
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
-			pwm_set( i ,motormap( mix[i] ) );
+		#ifndef NOMOTORS
+		pwm_set( i ,motormap( mix[i] ) );
+		#endif
 		}	
 		
 		pwmsum = 0;
@@ -126,13 +159,22 @@ if ( throttle < 0   ) throttle = 0;
 		}	
 		pwmsum = pwmsum / 4;
 		
+		thrsum = 0;
+		for ( int i = 0 ; i <= 3 ; i++)
+		{
+			if ( mix[i] < 0 ) mix[i] = 0;
+			if ( mix[i] > 1 ) mix[i] = 1;
+			thrsum+= mix[i];
+		}	
+		thrsum = thrsum / 4;
+		
 	}// end motors on
-
+	
 }
 
 
-
-float motormap( float input)
+/*
+float motormap_old( float input)
 { 
 	// this is a thrust to pwm function
 	//  float 0 to 1 input and output
@@ -148,6 +190,25 @@ if ( input < 0.25 ) return input;
 
 input = input*input*0.75  + input*(0.0637);
 input += 0.185;
+
+return input;   
+}
+*/
+
+float motormap( float input)
+{ 
+	// this is a thrust to pwm function
+	//  float 0 to 1 input and output
+	// output can go negative slightly
+	// measured eachine motors and prop, stock battery
+	// a*x^2 + b*x + c
+	// a = 0.262 , b = 0.771 , c = -0.0258
+
+if (input > 1.0) input = 1.0;
+if (input < 0) input = 0;
+
+input = input*input*0.262  + input*(0.771);
+input += -0.0258;
 
 return input;   
 }

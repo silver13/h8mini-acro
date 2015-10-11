@@ -22,85 +22,72 @@ void spi_init(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_IN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
-	
+	spi_csoff();
 }
 
 
 #define gpioset( port , pin) port->BOR = (0x0001 << pin)
 #define gpioreset( port , pin) port->BCR = (0x0001 << pin)
 
-void mosihigh( )
-{
-	//GPIO_WriteBit(GPIOB, GPIO_PIN_3, Bit_SET);
-	//GPIOB->BOR = GPIO_PIN_3;
-	gpioset( GPIOB, 3);
-}
+#define MOSIHIGH gpioset( GPIOB, 3)
+#define MOSILOW gpioreset( GPIOB, 3);
+#define SCKHIGH gpioset( GPIOB, 4);
+#define SCKLOW gpioreset( GPIOB, 4);
 
-void sckhigh( )
-{
-	//GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_SET);
-  //GPIOB->BOR = GPIO_PIN_4;
-  gpioset( GPIOB, 4);	
-}
+#define READMISO ((GPIOA->DIR & GPIO_PIN_15) != (uint32_t)Bit_RESET)
 
 
-void scklow( )
-{
-//GPIO_WriteBit(GPIOB, GPIO_PIN_4, Bit_RESET);	
-	//GPIOB->BCR = GPIO_PIN_4;
-	gpioreset( GPIOB, 4);
-}
-
-void mosilow( )
-{
-	//GPIO_WriteBit(GPIOB, GPIO_PIN_3, Bit_RESET);
-	//GPIOB->BCR = GPIO_PIN_3;
-	gpioreset( GPIOB, 3);
-}
 void spi_cson( )
 {
 	GPIO_WriteBit(GPIOB, GPIO_PIN_5, Bit_RESET);
-	//gpioset( GPIOB, 5);
 }
 
 void spi_csoff( )
 {
-	GPIO_WriteBit(GPIOB, GPIO_PIN_5, Bit_SET);
-	//gpioset( GPIOB, 5);
+	gpioset( GPIOB, 5);
 }
 
 
-int readmiso()
-{
-	//return GPIO_ReadInputBit( GPIOA, GPIO_PIN_15)	;
-	return ((GPIOA->DIR & GPIO_PIN_15) != (uint32_t)Bit_RESET);
-}
-
-
-void spi_sendbyte ( uint8_t data)
+void spi_sendbyte ( int data)
 {
 for ( int i =7 ; i >=0 ; i--)
 	{
-		if ( bitRead( data , i)  ) mosihigh( );
-		else mosilow( );
-		sckhigh();
-		scklow();
+		if ( bitRead( data , i)  ) 
+		{
+			MOSIHIGH;
+		}
+		else 
+		{
+			MOSILOW;
+		}
+	
+		SCKHIGH;
+		SCKLOW;
 	}
 }
 
-uint8_t spi_sendrecvbyte ( uint8_t data)
+
+int spi_sendrecvbyte ( int data)
 { int recv = 0;
 	for ( int i =7 ; i >=0 ; i--)
 	{
-		if ( bitRead( data , i)  ) mosihigh( );
-		else mosilow( );
-		sckhigh();
-		if ( readmiso()  ) bitSet ( recv , i);	
-		scklow();
+		if ( (data) & (1<<7)  ) 
+		{
+			MOSIHIGH;
+		}
+		else 
+		{
+			MOSILOW;
+		}
+		SCKHIGH;
+		data = data<<1;
+		if ( READMISO ) recv= recv|(1<<7);
+		recv = recv<<1;
+		SCKLOW;
 	}	
+	  recv = recv>>8;
     return recv;
 }
-
 
 
 
