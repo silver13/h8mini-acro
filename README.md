@@ -18,6 +18,14 @@ Thanks to goebish, victzh for bayang protocol reverse engineering and nrf emulat
 
 Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/forums/showthread.php?t=2512604)
 
+
+#11.10.15 changes
+* a lot of changes this time
+* hardware i2c
+* better pid tuneings
+* measured motor curves
+* improved rx code
+
 #04.10.15 changes
 
 * disabled quad side expo functions by default ( should enable in config if required)
