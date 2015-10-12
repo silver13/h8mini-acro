@@ -1,6 +1,6 @@
 # Eachine H8 mini acro firmware 
 
-This is a acro firmware for the Eachine H8mini quadcopter.
+This is an acro firmware for the Eachine H8mini quadcopter.
 
 Initial release may contain bugs and "unintended features".
 
