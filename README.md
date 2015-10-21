@@ -18,6 +18,11 @@ Thanks to goebish, victzh for bayang protocol reverse engineering and nrf emulat
 
 Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/forums/showthread.php?t=2512604)
 
+#22.10.15 changes
+* fixed rx bug
+* fixed expo bug
+* changed pids (again) for faster response
+* added headless mode
 
 #11.10.15 changes
 * a lot of changes this time
