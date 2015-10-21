@@ -35,36 +35,35 @@ THE SOFTWARE.
 
 
 extern float rx[7];
-extern float attitude[3];
 extern float gyro[3];
 extern int failsafe;
-extern float pidoutput[3];
+extern float pidoutput[PIDNUMBER];
 
 int onground = 1;
 float pwmsum;
 float thrsum;
 
-float error[3];
+float error[PIDNUMBER];
 float motormap( float input);
 int lastchange;
 int pulse;
 //static unsigned long timestart = 0;
+float yawangle;
+
+extern float looptime;
+
+extern int auxchange[AUXNUMBER];
+extern int aux[AUXNUMBER];
+
 
 void control( void)
 {
-
-
-#ifndef DISABLE_EXPO
-	rx[0] = rcexpo ( rx[0] , EXPO_XY );
-  rx[1] = rcexpo ( rx[1] , EXPO_XY ); 
-  rx[2] = rcexpo ( rx[2] , EXPO_YAW ); 	
-#endif
 
 	// hi rates
 	float ratemulti;
 	float ratemultiyaw;
 
-	if (rx[5] > 0.5 ) 
+	if ( aux[RATES] ) 
 	{
 		ratemulti = HIRATEMULTI;
 		ratemultiyaw = HIRATEMULTIYAW;
@@ -75,6 +74,21 @@ void control( void)
 		ratemultiyaw = 1.0;
 	}
 
+	
+	yawangle = yawangle + gyro[2]*looptime;
+
+	if ( auxchange[HEADLESSMODE] )
+	{
+		yawangle = 0;
+	}
+	
+	if ( aux[HEADLESSMODE] ) 
+	{
+		float temp = rx[0];
+		rx[0] = rx[0] * cosf( yawangle) - rx[1] * sinf(yawangle );
+		rx[1] = rx[1] * cosf( yawangle) + temp * sinf(yawangle ) ;
+	}
+	
 /*	
 int change = (rx[5] > 0.5);
 
@@ -119,8 +133,9 @@ if ( pulse )
 float	throttle = mapf(rx[3], 0 , 1 , -0.1 , 1 );
 if ( throttle < 0   ) throttle = 0;
 
-	// turn motors off if throttle is off and pitch / roll sticks are centered
-	if ( failsafe || (throttle < 0.001 && (  (fabs(rx[0]) < 0.5 && fabs(rx[1]) < 0.5)) ) ) 
+// turn motors off if throttle is off and pitch / roll sticks are centered
+	if ( failsafe || (throttle < 0.001 && (!ENABLESTIX||  (fabs(rx[0]) < 0.5 && fabs(rx[1]) < 0.5 ) ) ) ) 
+
 	{ // motors off
 		for ( int i = 0 ; i <= 3 ; i++)
 		{

@@ -7,10 +7,11 @@
 #define MOTOR_BL 2
 #define MOTOR_BR 1
 
+#define PIDNUMBER 3
 
 #define DEGTORAD 0.017453292
 
-
+#define AUXNUMBER 6
 
 
 

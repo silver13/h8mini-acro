@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "drv_time.h"
 #include <stdio.h>
 #include "config.h"
+#include "defines.h"
 
 #include "rx_bayang.h"
 
@@ -93,9 +94,10 @@ int checkpacket()
 	int status = xn_command(NOP);
 	if ( status&(1<<MASK_RX_DR) )
 	{	 // rx clear bit
-	  xn_writereg( STATUS , (1<<MASK_RX_DR) );
+		// this is not working well
+	 // xn_writereg( STATUS , (1<<MASK_RX_DR) );
 		//RX packet received
-		return 1;
+		//return 1;
 	}
 	if( (status & B00001110) != B00001110 )
 	{
@@ -106,13 +108,12 @@ int checkpacket()
   return 0;
 }
 
-void setchannel(int chan)
-{
-	 xn_writereg(0x25, chan ); // Set channel frequency		
-}
-
 
 float rx[7];
+// the last 2 are always on and off respectively
+int aux[AUXNUMBER] = { 0 ,0 ,0 , 0 , 1 , 0};
+int lastaux[AUXNUMBER];
+int auxchange[AUXNUMBER];
 int rxdata[15];
 
 #define CHANOFFSET 512
@@ -139,17 +140,39 @@ int decodepacket( void)
 			rx[2] = packettodata( &rxdata[10] );
 		// throttle		
 			rx[3] = ( (rxdata[8]&0x0003) * 256 + rxdata[9] ) * 0.000976562;
+		
+#ifndef DISABLE_EXPO
+	rx[0] = rcexpo ( rx[0] , EXPO_XY );
+	rx[1] = rcexpo ( rx[1] , EXPO_XY ); 
+	rx[2] = rcexpo ( rx[2] , EXPO_YAW ); 	
+#endif
 
+			
 		// trims are 50% of controls at max		
 	// trims are not used because they interfere with dynamic trims feature of devo firmware
 			
 //			rx[0] = rx[0] + 0.03225 * 0.5 * (float)(((rxdata[4])>>2) - 31);
 //			rx[1] = rx[1] + 0.03225 * 0.5 * (float)(((rxdata[6])>>2) - 31);
 //			rx[2] = rx[2] + 0.03225 * 0.5 * (float)(((rxdata[10])>>2) - 31);
-				
+//	aux2 = 0;			
 			rx[4] = (rxdata[2] &  0x08)?1:0; // flip channel
+			aux[0] = (rxdata[2] &  0x08)?1:0;
+	
 			rx[5] = (rxdata[1] == 0xfa)?1:0; // expert mode
+			aux[1] = (rxdata[1] == 0xfa)?1:0;
+	
 			rx[6] = (rxdata[2] &  0x02)?1:0; // headless channel
+		  aux[2] = (rxdata[2] &  0x02)?1:0;
+
+			aux[3] = (rxdata[2] &  0x01)?1:0;// rth channel
+
+			for ( int i = 0 ; i < AUXNUMBER - 2 ; i++)
+			{
+				auxchange[i] = 0;
+				if ( lastaux[i] != aux[i] ) auxchange[i] = 1;
+				lastaux[i] = aux[i];
+			}
+			
 			return 1;	// valid packet	
 		}
 	 return 0; // sum fail
@@ -212,7 +235,7 @@ void checkrx( void)
 					rxaddress[4] = rxdata[5];
 					rxmode = 123;				
 					xn_writerxaddress( rxaddress );
-					setchannel( rfchannel[chan]);
+				  xn_writereg(0x25, rfchannel[chan] ); // Set channel frequency	
 				
 					#ifdef SERIAL	
 					printf( " BIND \n");
@@ -226,10 +249,7 @@ void checkrx( void)
 				packettime = gettime() - lastrxtime;
 				#endif
 
-				// due to spi being slow we skip one additional channel
-				chan++;
-				
-				nextchannel(); // includes++		
+				nextchannel();
 				
 				lastrxtime = gettime();				
 				xn_readpayload( rxdata , 15);
@@ -259,10 +279,11 @@ void checkrx( void)
 			}// end normal rx mode
 				
 		}// end packet received
+
 		unsigned long time = gettime();
 		
     // sequence period 12000
-		if( time - lastrxtime > 9000 && rxmode != 0)
+		if( time - lastrxtime > 10000 && rxmode != 0)
 		{//  channel with no reception	 
 		 lastrxtime = time;
 		 nextchannel();	

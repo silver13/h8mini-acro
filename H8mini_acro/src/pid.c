@@ -28,36 +28,45 @@ THE SOFTWARE.
 #include "util.h"
 #include "config.h"
 
+#include "defines.h"
 
-#define PIDNUMBER 3
-				
+
 // this Kp is used for a normal PID ( PI-D , really )
-float pidkp[PIDNUMBER] = { 0.0e-2 , 0.0e-2  , 10e-1 }; 
+float pidkp[PIDNUMBER] = { 13.0e-2 , 13.0e-2  , 10e-1 }; 
 //  											ROLL       PITCH     YAW
 // this Kp2 is used for a I-PD controller instead of the above PID
-float pidkp2[PIDNUMBER] = { 13.5e-2 , 13.5e-2 ,  0e-2 };	
+float pidkp2[PIDNUMBER] = { 0.0e-2 , 0.0e-2 ,  0e-2 };	
 // Ki
-float pidki[PIDNUMBER] = { 19.5e-1  , 19.5e-1 , 50e-1 };	
+float pidki[PIDNUMBER] = { 15e-1  , 15e-1 , 50e-1 };	
 // Kd											ROLL       PITCH     YAW
-float pidkd[PIDNUMBER] = { 5.8e-1 , 5.8e-1  , 5.0e-1 };	
+float pidkd[PIDNUMBER] = { 6.8e-1 , 6.8e-1  , 5.0e-1 };	
+
+
+// output limit			
+const float outlimit[PIDNUMBER] = { 1.0 , 1.0 , 0.4 };
 
 // limit of integral term (abs)
-#define ITERMLIMIT_FLOAT 1.0	
-			
-const float outlimit[3] = { 1.0 , 1.0 , 0.4 };
+const float integrallimit[PIDNUMBER] = { 1.0 , 1.0 , 0.2 };
+
 
 float ierror[PIDNUMBER] = { 0 , 0 , 0};	
 float lastrate[PIDNUMBER];
-float pidoutput[3];
+float pidoutput[PIDNUMBER];
 
-extern float error[3];
+extern float error[PIDNUMBER];
+float lasterror[PIDNUMBER];
+
 extern float looptime;
 extern float gyro[3];
 extern int onground;
 
+float lasterror[PIDNUMBER];
+
+
+
 float pid(int x )
-{    
-	
+{ 
+
         if (onground) 
 				{
            ierror[x] *= 0.8;
@@ -74,37 +83,30 @@ float pid(int x )
 				}
         if ( !iwindup)
 				{
-         ierror[x] = ierror[x] + error[x] *  pidki[x] * looptime; 
+				 // trapezoidal rule instead of rectangular
+         ierror[x] = ierror[x] + (error[x] + lasterror[x]) * 0.5 *  pidki[x] * looptime;
+				 //ierror[x] = ierror[x] + error[x] *  pidki[x] * looptime; 					
 				}
 				
-       //  ierror[x] = ierror[x] + error[x] *  pidki[x] * looptime; 
-						
-		if ( x != 2)
-		{	
-         if ( ierror[x]  > ITERMLIMIT_FLOAT) ierror[x] = ITERMLIMIT_FLOAT;
-				 if ( ierror[x]  < -ITERMLIMIT_FLOAT) ierror[x] = -ITERMLIMIT_FLOAT;
-		}else
-		{
-			limitf( &ierror[x] , 0.2 );
-		}
+				lasterror[x] = error[x];
+				limitf( &ierror[x] , integrallimit[x] );
 		
 				// P term
           pidoutput[x] = error[x] * pidkp[x] ;
-			
-				// I term	
-					pidoutput[x] += ierror[x]  ;
-					
+									
 				// P2 (direct feedback) term	
-					float p2term =  -  ( gyro[x]) *pidkp2[x];
+				  pidoutput[x] = pidoutput[x] -  ( gyro[x]) *pidkp2[x];
 				
-				  pidoutput[x] = pidoutput[x] + p2term; 
-				
-					// D term
+				// I term	
+					pidoutput[x] += ierror[x];
+			
+				// D term
 					pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x]) * pidkd[x]; 
-					
+		
 				  limitf(  &pidoutput[x] , outlimit[x]);
 					
 lastrate[x] = gyro[x];	
+lasterror[x] = error[x];
 
 return pidoutput[x];		 		
 }
