@@ -18,6 +18,11 @@ Thanks to goebish, victzh for bayang protocol reverse engineering and nrf emulat
 
 Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/forums/showthread.php?t=2512604)
 
+#31.10.15 changes
+* fixed loop time interaction with pid d term
+* increased rx sensitivity by setting xn297 HCURR_LNA bit
+* optimizations 
+
 #22.10.15 changes
 * fixed rx bug
 * fixed expo bug
