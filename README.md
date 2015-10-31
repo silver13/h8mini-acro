@@ -22,6 +22,7 @@ Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/
 * fixed loop time interaction with pid d term
 * increased rx sensitivity by setting xn297 HCURR_LNA bit
 * optimizations 
+* pwm frequency in drv_pwm.c
 
 #22.10.15 changes
 * fixed rx bug
