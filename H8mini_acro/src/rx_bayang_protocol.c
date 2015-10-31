@@ -79,7 +79,7 @@ xn_writerxaddress( rxaddress);
 
 	xn_writereg( EN_AA , 0 );	// aa disabled
 	xn_writereg( EN_RXADDR , 1 ); // pipe 0 only
-	xn_writereg( RF_SETUP , 0);
+	xn_writereg( RF_SETUP , B00000001);
 	xn_writereg( RX_PW_P0 , 15 ); // payload size
 	xn_writereg( SETUP_RETR , 0 ); // no retransmissions ( redundant?)
 	xn_writereg( SETUP_AW , 3 ); // address size (5 bits)
@@ -89,7 +89,7 @@ xn_writerxaddress( rxaddress);
 	
 }
 
-int checkpacket()
+static char checkpacket()
 {
 	int status = xn_command(NOP);
 	if ( status&(1<<MASK_RX_DR) )
@@ -111,9 +111,9 @@ int checkpacket()
 
 float rx[7];
 // the last 2 are always on and off respectively
-int aux[AUXNUMBER] = { 0 ,0 ,0 , 0 , 1 , 0};
-int lastaux[AUXNUMBER];
-int auxchange[AUXNUMBER];
+char aux[AUXNUMBER] = { 0 ,0 ,0 , 0 , 1 , 0};
+char lastaux[AUXNUMBER];
+char auxchange[AUXNUMBER];
 int rxdata[15];
 
 #define CHANOFFSET 512
@@ -124,7 +124,7 @@ float packettodata( int *  data)
 }
 
 
-int decodepacket( void)
+static int decodepacket( void)
 {
 	if ( rxdata[0] == 165 )
 	{
@@ -155,13 +155,13 @@ int decodepacket( void)
 //			rx[1] = rx[1] + 0.03225 * 0.5 * (float)(((rxdata[6])>>2) - 31);
 //			rx[2] = rx[2] + 0.03225 * 0.5 * (float)(((rxdata[10])>>2) - 31);
 //	aux2 = 0;			
-			rx[4] = (rxdata[2] &  0x08)?1:0; // flip channel
+		//	rx[4] = (rxdata[2] &  0x08)?1:0; // flip channel
 			aux[0] = (rxdata[2] &  0x08)?1:0;
 	
-			rx[5] = (rxdata[1] == 0xfa)?1:0; // expert mode
+		//	rx[5] = (rxdata[1] == 0xfa)?1:0; // expert mode
 			aux[1] = (rxdata[1] == 0xfa)?1:0;
 	
-			rx[6] = (rxdata[2] &  0x02)?1:0; // headless channel
+		//	rx[6] = (rxdata[2] &  0x02)?1:0; // headless channel
 		  aux[2] = (rxdata[2] &  0x02)?1:0;
 
 			aux[3] = (rxdata[2] &  0x01)?1:0;// rth channel
@@ -181,7 +181,7 @@ return 0; // first byte different
 }
 
 
-	int rfchannel[4];
+  char rfchannel[4];
 	int rxaddress[5];
 	int rxmode = 0;
 	int chan = 0;
@@ -209,7 +209,9 @@ int channelcount[4];
 int failcount;
 int packetrx;
 int packetpersecond;
+#warning "RX debug enabled"
 #endif
+
 
 void checkrx( void)
 {
@@ -249,6 +251,8 @@ void checkrx( void)
 				packettime = gettime() - lastrxtime;
 				#endif
 
+				//chan++;
+				//if (chan > 3 ) chan = 0;
 				nextchannel();
 				
 				lastrxtime = gettime();				
@@ -258,12 +262,6 @@ void checkrx( void)
 				if (pass)
 				{ 
 					#ifdef RXDEBUG	
-					if ( gettime() - secondtimer  > 1000000)
-					{
-						packetpersecond = packetrx;
-						packetrx = 0;
-						secondtimer = gettime();
-					}
 					packetrx++;
 					#endif
 					failsafetime = lastrxtime; 
@@ -283,7 +281,7 @@ void checkrx( void)
 		unsigned long time = gettime();
 		
     // sequence period 12000
-		if( time - lastrxtime > 10000 && rxmode != 0)
+		if( time - lastrxtime > 9000 && rxmode != 0)
 		{//  channel with no reception	 
 		 lastrxtime = time;
 		 nextchannel();	
@@ -296,6 +294,14 @@ void checkrx( void)
 			rx[2] = 0;
 			rx[3] = 0;
 		}
+#ifdef RXDEBUG	
+			if ( gettime() - secondtimer  > 1000000)
+			{
+				packetpersecond = packetrx;
+				packetrx = 0;
+				secondtimer = gettime();
+			}
+#endif
 
 }
 	

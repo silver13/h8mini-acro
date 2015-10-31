@@ -13,6 +13,10 @@
 
 #define AUXNUMBER 6
 
+#define ROLL 0
+#define PITCH 1
+#define YAW 2
+
 
 
 

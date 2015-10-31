@@ -52,9 +52,13 @@ float yawangle;
 
 extern float looptime;
 
-extern int auxchange[AUXNUMBER];
-extern int aux[AUXNUMBER];
+extern char auxchange[AUXNUMBER];
+extern char aux[AUXNUMBER];
 
+#ifdef NOMOTORS
+// to maintain timing or it will be optimized away
+float tempx[4];
+#endif
 
 void control( void)
 {
@@ -75,7 +79,7 @@ void control( void)
 	}
 
 	
-	yawangle = yawangle + gyro[2]*looptime;
+	yawangle = yawangle + gyro[YAW]*looptime;
 
 	if ( auxchange[HEADLESSMODE] )
 	{
@@ -84,9 +88,9 @@ void control( void)
 	
 	if ( aux[HEADLESSMODE] ) 
 	{
-		float temp = rx[0];
-		rx[0] = rx[0] * cosf( yawangle) - rx[1] * sinf(yawangle );
-		rx[1] = rx[1] * cosf( yawangle) + temp * sinf(yawangle ) ;
+		float temp = rx[ROLL];
+		rx[ROLL] = rx[ROLL] * cosf( yawangle) - rx[PITCH] * sinf(yawangle );
+		rx[PITCH] = rx[PITCH] * cosf( yawangle) + temp * sinf(yawangle ) ;
 	}
 	
 /*	
@@ -118,14 +122,15 @@ if ( pulse )
 }
 */
 	
-	error[0] = rx[0] * MAX_RATE * DEGTORAD * ratemulti - gyro[0];
-	error[1] = rx[1] * MAX_RATE * DEGTORAD * ratemulti - gyro[1];
-	error[2] = rx[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
+	error[ROLL] = rx[ROLL] * MAX_RATE * DEGTORAD * ratemulti - gyro[ROLL];
+	error[PITCH] = rx[PITCH] * MAX_RATE * DEGTORAD * ratemulti - gyro[PITCH];
+	error[YAW] = rx[YAW] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[YAW];
 	
-	
-	pid(0);
-	pid(1);
-	pid(2);
+pid_precalc();
+
+	pid(ROLL);
+	pid(PITCH);
+	pid(YAW);
 
 
 	
@@ -134,16 +139,16 @@ float	throttle = mapf(rx[3], 0 , 1 , -0.1 , 1 );
 if ( throttle < 0   ) throttle = 0;
 
 // turn motors off if throttle is off and pitch / roll sticks are centered
-	if ( failsafe || (throttle < 0.001 && (!ENABLESTIX||  (fabs(rx[0]) < 0.5 && fabs(rx[1]) < 0.5 ) ) ) ) 
+	if ( failsafe || (throttle < 0.001 && (!ENABLESTIX||  (fabs(rx[ROLL]) < 0.5 && fabs(rx[PITCH]) < 0.5 ) ) ) ) 
 
 	{ // motors off
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
-			pwm_set( i , 0 );
-			onground = 1;
-			pwmsum = 0;
-			thrsum = 0;
+			pwm_set( i , 0 );	
 		}	
+		onground = 1;
+		pwmsum = 0;
+		thrsum = 0;
 	}
 	else
 	{
@@ -152,16 +157,18 @@ if ( throttle < 0   ) throttle = 0;
 		
 //		pidoutput[2] += motorchange;
 		
-		mix[MOTOR_FR] = throttle - pidoutput[0] - pidoutput[1] + pidoutput[2];		// FR
-		mix[MOTOR_FL] = throttle + pidoutput[0] - pidoutput[1] - pidoutput[2];		// FL	
-		mix[MOTOR_BR] = throttle - pidoutput[0] + pidoutput[1] - pidoutput[2];		// BR
-		mix[MOTOR_BL] = throttle + pidoutput[0] + pidoutput[1] + pidoutput[2];		// BL	
+		mix[MOTOR_FR] = throttle - pidoutput[ROLL] - pidoutput[PITCH] + pidoutput[YAW];		// FR
+		mix[MOTOR_FL] = throttle + pidoutput[ROLL] - pidoutput[PITCH] - pidoutput[YAW];		// FL	
+		mix[MOTOR_BR] = throttle - pidoutput[ROLL] + pidoutput[PITCH] - pidoutput[YAW];		// BR
+		mix[MOTOR_BL] = throttle + pidoutput[ROLL] + pidoutput[PITCH] + pidoutput[YAW];		// BL	
 			
 		
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
 		#ifndef NOMOTORS
 		pwm_set( i ,motormap( mix[i] ) );
+		#else
+		tempx[i] = motormap( mix[i] );
 		#endif
 		}	
 		

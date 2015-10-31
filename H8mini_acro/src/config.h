@@ -92,7 +92,8 @@
 #define ENABLESTIX 0
 
 
-
+// debug things
+// #define DEBUG
 
 
 

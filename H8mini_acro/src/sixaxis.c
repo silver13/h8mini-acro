@@ -56,27 +56,26 @@ void sixaxis_init( void)
  i2c_writereg( 107 , 128);	
 	 
  delay(40000);
-	// gyro scale 2000 deg (FS =3)
-// softi2c_write(UNK_INVENSENSE_ADDRESS, 27, 24 );
-
- i2c_writereg( 27 , 24);	
 	
-//	softi2c_write(UNK_INVENSENSE_ADDRESS, 28, B00001000 ); // acc scale
+// clear sleep bit on old type gyro
+i2c_writereg( 107 , 0);
 	
-	i2c_writereg( 28 , B00001000);	
+// gyro scale 2000 deg (FS =3)
+i2c_writereg( 27 , 24);	
 	
-	// Gyro and acc DLPF low pass filter
- //softi2c_write(UNK_INVENSENSE_ADDRESS, 26, UNK_INVENSENSE_DLPF_CFG ); 
-
-i2c_writereg( 26 , UNK_INVENSENSE_DLPF_CFG);		
+// Gyro and acc DLPF low pass filter
+i2c_writereg( 26 , UNK_INVENSENSE_DLPF_CFG);	
+	
 }
 
 
 int sixaxis_check( void)
 {
 	// read "who am I" register
-// return (0x78==softi2c_read( UNK_INVENSENSE_ADDRESS , 117 ) ); 	
-	return (0x78==i2c_readreg( 117 ));
+	int id = i2c_readreg( 117 );
+	// new board returns 78h (unknown gyro maybe mpu-6500 compatible) 
+	// old board returns 68h (mpu - 6050)
+	return (0x78==id||0x68==id );
 }
 
 

@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 
 // this Kp is used for a normal PID ( PI-D , really )
-float pidkp[PIDNUMBER] = { 13.0e-2 , 13.0e-2  , 10e-1 }; 
+const float pidkp[PIDNUMBER] = { 13.0e-2 , 13.0e-2  , 10e-1 }; 
 //  											ROLL       PITCH     YAW
 // this Kp2 is used for a I-PD controller instead of the above PID
 float pidkp2[PIDNUMBER] = { 0.0e-2 , 0.0e-2 ,  0e-2 };	
@@ -50,19 +50,24 @@ const float integrallimit[PIDNUMBER] = { 1.0 , 1.0 , 0.2 };
 
 
 float ierror[PIDNUMBER] = { 0 , 0 , 0};	
-float lastrate[PIDNUMBER];
+static float lastrate[PIDNUMBER];
 float pidoutput[PIDNUMBER];
 
 extern float error[PIDNUMBER];
-float lasterror[PIDNUMBER];
+static float lasterror[PIDNUMBER];
 
 extern float looptime;
 extern float gyro[3];
 extern int onground;
 
-float lasterror[PIDNUMBER];
+extern float looptime;
 
+float timefactor;
 
+void pid_precalc()
+{
+	timefactor = 0.0032 / looptime;
+}
 
 float pid(int x )
 { 
@@ -88,21 +93,22 @@ float pid(int x )
 				 //ierror[x] = ierror[x] + error[x] *  pidki[x] * looptime; 					
 				}
 				
-				lasterror[x] = error[x];
 				limitf( &ierror[x] , integrallimit[x] );
 		
 				// P term
           pidoutput[x] = error[x] * pidkp[x] ;
 									
 				// P2 (direct feedback) term	
-				  pidoutput[x] = pidoutput[x] -  ( gyro[x]) *pidkp2[x];
+				  pidoutput[x] = pidoutput[x] -   gyro[x] *pidkp2[x];
 				
 				// I term	
 					pidoutput[x] += ierror[x];
 			
-				// D term
-					pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x]) * pidkd[x]; 
-		
+				// D term		  
+					//pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x]) * pidkd[x] * 0.0032 / looptime;
+					pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x]) * pidkd[x] * timefactor  ;
+					//pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x]) * pidkd[x] ;
+				  
 				  limitf(  &pidoutput[x] , outlimit[x]);
 					
 lastrate[x] = gyro[x];	

@@ -170,6 +170,10 @@ if ( liberror )
 //
 //
 
+#ifdef DEBUG
+static float timefilt;
+#endif
+
 	while(1)
 	{
 		// gettime() needs to be called at least once per second 
@@ -182,6 +186,9 @@ if ( liberror )
 			failloop( 3);	
 			//endless loop			
 		}
+		#ifdef DEBUG
+		lpf ( &timefilt , looptime, 0.998 );
+		#endif
 		lastlooptime = time;
 		
 		if ( liberror > 20) 
