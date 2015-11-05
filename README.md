@@ -20,27 +20,10 @@ Thanks to goebish, victzh for bayang protocol reverse engineering and nrf emulat
 
 Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/forums/showthread.php?t=2512604)
 
-#31.10.15 changes
+###31.10.15 changes
 * fixed loop time interaction with pid d term
 * increased rx sensitivity by setting xn297 HCURR_LNA bit
 * optimizations 
 * pwm frequency in drv_pwm.c
 
-#22.10.15 changes
-* fixed rx bug
-* fixed expo bug
-* changed pids (again) for faster response
-* added headless mode
-
-#11.10.15 changes
-* a lot of changes this time
-* hardware i2c
-* better pid tuneings
-* measured motor curves
-* improved rx code
-
-#04.10.15 changes
-
-* disabled quad side expo functions by default ( should enable in config if required)
-* disabled trims since they are not needed in acro mode and they interfere with dynamic trims feature from devo
-* minor soft_spi optimization
+###older changes not shown
