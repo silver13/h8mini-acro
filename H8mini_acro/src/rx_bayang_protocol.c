@@ -35,6 +35,7 @@ THE SOFTWARE.
 
 #include "rx_bayang.h"
 
+#include "util.h"
 
 
 void rx_init()
