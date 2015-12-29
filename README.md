@@ -2,6 +2,11 @@
 
 This is an acro firmware for the Eachine H8mini quadcopter.
 
+**Do not flash the H8 firmware to the H101**
+
+**Do not flash the H8 firmware to the H8S**
+
+
 H8 mini hardware:
  * GigaDevice GD32F130G6 cortex M3 32k flash 72Mhz CPU
  * Invensense gyro + accelerometer, MPU-6050 compatible mostly ( responds 0x78 to who am I)
