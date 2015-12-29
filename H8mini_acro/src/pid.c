@@ -46,7 +46,7 @@ float pidkd[PIDNUMBER] = { 6.8e-1 , 6.8e-1  , 5.0e-1 };
 const float outlimit[PIDNUMBER] = { 1.0 , 1.0 , 0.4 };
 
 // limit of integral term (abs)
-const float integrallimit[PIDNUMBER] = { 1.0 , 1.0 , 0.2 };
+const float integrallimit[PIDNUMBER] = { 1.0 , 1.0 , 0.4 };
 
 
 float ierror[PIDNUMBER] = { 0 , 0 , 0};	
