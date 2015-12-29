@@ -25,6 +25,12 @@ Thanks to goebish, victzh for bayang protocol reverse engineering and nrf emulat
 
 Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/forums/showthread.php?t=2512604)
 
+#####Stock tx:
+On the stock tx only the rate (expert) button works. Trims are not functional on the stock tx.
+
+#####Devo tx:
+Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used, and trims should not be required.
+
 ###31.10.15 changes
 * fixed loop time interaction with pid d term
 * increased rx sensitivity by setting xn297 HCURR_LNA bit
