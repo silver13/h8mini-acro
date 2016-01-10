@@ -46,24 +46,25 @@ THE SOFTWARE.
 #define UNK_INVENSENSE_DLPF_CFG   6
 #endif
 
-
+#ifdef DEBUG
+int gyroid = 321;
+#endif
 
 void sixaxis_init( void)
 {
 // gyro soft reset
-// softi2c_write(UNK_INVENSENSE_ADDRESS, 107, 128 );
 	
  i2c_writereg( 107 , 128);	
 	 
  delay(40000);
 	
-// clear sleep bit on old type gyro
+// clear sleep bit on old type gyro (mpu-6050)
 i2c_writereg( 107 , 0);
 	
 // gyro scale 2000 deg (FS =3)
 i2c_writereg( 27 , 24);	
 	
-// Gyro and acc DLPF low pass filter
+// Gyro DLPF low pass filter
 i2c_writereg( 26 , UNK_INVENSENSE_DLPF_CFG);	
 	
 }
@@ -73,8 +74,15 @@ int sixaxis_check( void)
 {
 	// read "who am I" register
 	int id = i2c_readreg( 117 );
-	// new board returns 78h (unknown gyro maybe mpu-6500 compatible) 
+	// new board returns 78h (unknown gyro maybe mpu-6500 compatible) marked m681
 	// old board returns 68h (mpu - 6050)
+	// a new gyro marked m540 returns (unknown)
+	#ifdef DEBUG
+	gyroid = id;
+	#endif
+	#ifdef DISABLE_GYRO_CHECK
+	return 1;
+	#endif
 	return (0x78==id||0x68==id );
 }
 
@@ -115,7 +123,7 @@ gyro[2] = - gyro[2];
 
 for ( int i = 0 ; i < 3; i++)
 {
-	gyro[i] = gyro[i] *  0.061035156 * 0.017453292 ;
+	gyro[i] = gyro[i] *  0.061035156f * 0.017453292f ;
 }
 
 
@@ -153,13 +161,13 @@ while ( time - timestart < 2e6  &&  time - timemax < 15e6 )
 		
 if ( (time - timestart)%200000 > 100000) 
 {
-	ledon(B0101);
-	ledoff(B1010);
+	ledon(B00000101);
+	ledoff(B00001010);
 }
 else 
 {
-	ledon(B1010);
-	ledoff(B0101);
+	ledon(B00001010);
+	ledoff(B00000101);
 }
 		 for ( int i = 0 ; i < 3 ; i++)
 			{

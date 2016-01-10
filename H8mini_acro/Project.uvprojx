@@ -662,11 +662,6 @@
               <FileType>5</FileType>
               <FilePath>.\src\binary.h</FilePath>
             </File>
-            <File>
-              <FileName>macros.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\src\macros.h</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>

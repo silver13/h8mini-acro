@@ -24,9 +24,7 @@ THE SOFTWARE.
 
 
 // Eachine H8mini acro firmware
-// files of this project are assumed MIT licence unless otherwise noted
-
-// licence of files binary.h and macros.h LGPL 2.1
+// files of this project should be assumed MIT licence unless otherwise noted
 
 
 #include "gd32f1x0.h"
@@ -61,7 +59,6 @@ void failloop( int val);
 
 int main(void)
 {
-	//System_Init();
 	clk_init();
 	
   gpio_init();
@@ -69,7 +66,7 @@ int main(void)
 #ifdef SERIAL	
 	serial_init();
 #endif
-//	softi2c_init();
+
 	i2c_init();
 	
 	spi_init();
@@ -142,7 +139,7 @@ while ( count < 64 )
 	
 #ifdef STOP_LOWBATTERY
 // infinite loop
-if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
+if ( vbattfilt < (float) STOP_LOWBATTERY_TRESH) failloop(2);
 #endif
 
 	gyro_cal();
@@ -161,7 +158,6 @@ if ( liberror )
  extern int rxmode;
  extern int failsafe;
 
-//float vbattfilt = 3.0;
  float thrfilt;
 
 //
@@ -180,8 +176,8 @@ static float timefilt;
 		unsigned long time = gettime();
 		looptime = ((uint32_t)( time - lastlooptime));
 		if ( looptime <= 0 ) looptime = 1;
-		looptime = looptime * 1e-6;
-		if ( looptime > 0.02 ) // max loop 20ms or else...
+		looptime = looptime * 1e-6f;
+		if ( looptime > 0.02f ) // max loop 20ms or else...
 		{
 			failloop( 3);	
 			//endless loop			
@@ -204,7 +200,8 @@ static float timefilt;
 		control();
 		
 // battery low logic
-		int lowbatt = 0;
+		static int lowbatt = 0;
+		float hyst;
 		float battadc = adc_read(1);
 
 		// average of all 4 motor thrusts
@@ -212,12 +209,15 @@ static float timefilt;
 		extern float thrsum; // from control.c
 		// filter motorpwm so it has the same delay as the filtered voltage
 		// ( or they can use a single filter)		
-		lpf ( &thrfilt , thrsum , 0.9968);	// 0.5 sec at 1.6ms loop time	
-		//printf(" %2.2f \n" , pwmfilt);	
+		lpf ( &thrfilt , thrsum , 0.9968f);	// 0.5 sec at 1.6ms loop time	
 		
-		lpf ( &vbattfilt , battadc , 0.9968);		
-		//printf(" %2.2f \n" , vbattfilt);
-		if ( vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW + (lowbatt==1)?HYST:0 ) lowbatt = 1;
+		lpf ( &vbattfilt , battadc , 0.9968f);		
+
+		if ( lowbatt ) hyst = HYST;
+		else hyst = 0.0f;
+		
+		if ( vbattfilt + (float) VDROP_FACTOR * thrfilt <(float) VBATTLOW + hyst ) lowbatt = 1;
+		else lowbatt = 0;
 		
 // led flash logic		
 		if ( rxmode == 0)

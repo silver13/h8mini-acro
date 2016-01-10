@@ -2,7 +2,7 @@
 
 #include "gd32f1x0.h"
 #include "drv_spi.h"
-#include "macros.h"
+#include "binary.h"
 
 void spi_init(void)
 {    
@@ -36,6 +36,10 @@ void spi_init(void)
 
 #define READMISO ((GPIOA->DIR & GPIO_PIN_15) != (uint32_t)Bit_RESET)
 
+#pragma push
+
+#pragma Otime
+#pragma O2
 
 void spi_cson( )
 {
@@ -52,7 +56,7 @@ void spi_sendbyte ( int data)
 {
 for ( int i =7 ; i >=0 ; i--)
 	{
-		if ( bitRead( data , i)  ) 
+		if (  (data>>i)&1  ) 
 		{
 			MOSIHIGH;
 		}
@@ -67,7 +71,7 @@ for ( int i =7 ; i >=0 ; i--)
 }
 
 
-int spi_sendrecvbyte ( int data)
+int spi_sendrecvbyte2( int data)
 { int recv = 0;
 	for ( int i =7 ; i >=0 ; i--)
 	{
@@ -90,7 +94,55 @@ int spi_sendrecvbyte ( int data)
 }
 
 
+ int spi_sendrecvbyte( int data)
+{ int recv = 0;
 
+	for ( int i = 7 ; i >=0 ; i--)
+	{
+		recv = recv<<1;
+		if ( (data) & (1<<7)  ) 
+		{
+			MOSIHIGH;
+		}
+		else 
+		{
+			MOSILOW;
+		}
+		
+		data = data<<1;
+		
+		SCKHIGH;
+		
+		if ( READMISO ) recv= recv|1;
+
+		SCKLOW;
+		
+	}	
+
+    return recv;
+}
+
+
+ int spi_sendzerorecvbyte( )
+{ int recv = 0;
+	MOSILOW;
+
+	for ( int i = 7 ; i >=0 ; i--)
+	{
+		recv = recv<<1;
+		
+		SCKHIGH;
+		
+		if ( READMISO ) recv= recv|1;
+
+		SCKLOW;
+		
+	}	
+    return recv;
+}
+
+
+#pragma pop
 
 
 

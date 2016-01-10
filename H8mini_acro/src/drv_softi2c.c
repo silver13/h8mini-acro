@@ -27,7 +27,6 @@ THE SOFTWARE.
 #include <stdint.h>
 #include <stdio.h>
 
-#include "macros.h"
 //#include "drv_spi.h"
 #include "drv_softi2c.h"
 
@@ -216,7 +215,7 @@ int i;
  
  for ( i = 7; i >= 0 ;i--)
  {
- if (bitRead(value,i)) 
+ if ((value >> i)&1) 
  {
   sdahigh();
  }
@@ -265,7 +264,7 @@ uint8_t _readbyte(uint8_t ack)  //ACK 1 single byte ACK 0 multiple bytes
  for( i = 7; i>=0;i--)
  {
   sclhigh(); 
- if (_readsda() ) bitSet(data,i);
+ if (_readsda() ) data|=(1<<i);
   scllow();
  }
 

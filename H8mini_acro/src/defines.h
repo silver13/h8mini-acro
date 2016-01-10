@@ -9,7 +9,7 @@
 
 #define PIDNUMBER 3
 
-#define DEGTORAD 0.017453292
+#define DEGTORAD 0.017453292f
 
 #define AUXNUMBER 6
 

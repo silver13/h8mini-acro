@@ -35,6 +35,7 @@ THE SOFTWARE.
 
 #include "rx_bayang.h"
 
+#include "util.h"
 
 
 void rx_init()
@@ -79,7 +80,7 @@ xn_writerxaddress( rxaddress);
 
 	xn_writereg( EN_AA , 0 );	// aa disabled
 	xn_writereg( EN_RXADDR , 1 ); // pipe 0 only
-	xn_writereg( RF_SETUP , B00000001);
+	xn_writereg( RF_SETUP , B00000001);  // lna high current on ( better performance )
 	xn_writereg( RX_PW_P0 , 15 ); // payload size
 	xn_writereg( SETUP_RETR , 0 ); // no retransmissions ( redundant?)
 	xn_writereg( SETUP_AW , 3 ); // address size (5 bits)
@@ -91,7 +92,10 @@ xn_writerxaddress( rxaddress);
 
 static char checkpacket()
 {
-	int status = xn_command(NOP);
+	//int status = xn_command(NOP);
+	spi_cson();
+	int status = spi_sendzerorecvbyte();
+	spi_csoff();
 	if ( status&(1<<MASK_RX_DR) )
 	{	 // rx clear bit
 		// this is not working well
@@ -250,7 +254,8 @@ void checkrx( void)
 				channelcount[chan]++;	
 				packettime = gettime() - lastrxtime;
 				#endif
-
+				
+				// for longer loop times than 3ms it was skipping 2 channels
 				//chan++;
 				//if (chan > 3 ) chan = 0;
 				nextchannel();

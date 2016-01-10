@@ -31,9 +31,6 @@ float lpfcalc( float sampleperiod , float filtertime)
 	if ( sampleperiod <= 0 ) return 0;
   if ( filtertime <= 0 ) return 1;
    float ga = expf(-1.0f/( (1.0/ sampleperiod) * (filtertime) ));
-//	printf( " %f " ,sampleperiod ) ; 
-//	printf( " %f " ,filtertime ) ; 
-//   printf( " %f \n" ,ga ) ; 
 	if (ga > 1) ga = 1;
 	return ga;
 }

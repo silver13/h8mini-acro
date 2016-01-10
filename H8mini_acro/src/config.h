@@ -52,9 +52,6 @@
 // in volts
 #define HYST 0.10
 
-// enable serial out on back-left LED
-// serial is quite slow 
-//#define SERIAL
 
 // Gyro LPF filter frequency
 // gyro filter 0 = 260hz
@@ -64,9 +61,7 @@
 // 4 , 5, 6
 #define GYRO_LOW_PASS_FILTER 3
 
-// 
-// disable motors for testing
-//#define NOMOTORS
+
 
 
 // channel for headless mode switch
@@ -87,13 +82,53 @@
 // 5 - off always
 #define RATES 1
 
+
+
 // enable motors if pitch / roll controls off center (at zero throttle)
 // possible values: 0 / 1
 #define ENABLESTIX 0
 
 
+
+
+
+
+
+
+
+
+
+
+// debug / other things
+// this should not be usually changed
+
+// disable motors for testing
+// #define NOMOTORS
+
+
+// enable serial out on back-left LED
+// serial is quite slow 
+// #define SERIAL
+
+
 // debug things
 // #define DEBUG
+
+// disable the check for known gyro that causes the 4 times flash
+// #define DISABLE_GYRO_CHECK
+
+
+
+
+#pragma diag_warning 1035 , 177 , 4017
+#pragma diag_error 260
+
+
+
+
+
+
+
 
 
 

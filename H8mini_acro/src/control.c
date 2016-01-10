@@ -40,14 +40,11 @@ extern int failsafe;
 extern float pidoutput[PIDNUMBER];
 
 int onground = 1;
-float pwmsum;
 float thrsum;
 
 float error[PIDNUMBER];
 float motormap( float input);
-int lastchange;
-int pulse;
-//static unsigned long timestart = 0;
+
 float yawangle;
 
 extern float looptime;
@@ -93,38 +90,10 @@ void control( void)
 		rx[PITCH] = rx[PITCH] * cosf( yawangle) + temp * sinf(yawangle ) ;
 	}
 	
-/*	
-int change = (rx[5] > 0.5);
-
-if ( change != lastchange )
-{
-	pulse = 1;
-}
-lastchange = change;
-
-float motorchange = 0;
-
-if ( pulse )
-{
-	if ( !timestart) timestart = gettime();
 	
-	
-	if ( gettime() - timestart < 200000 )
-	{
-		motorchange = 0.2;	
-	}
-	else
-	{
-		motorchange = 0.0;
-		pulse = 0;
-		timestart = 0;
-	}
-}
-*/
-	
-	error[ROLL] = rx[ROLL] * MAX_RATE * DEGTORAD * ratemulti - gyro[ROLL];
-	error[PITCH] = rx[PITCH] * MAX_RATE * DEGTORAD * ratemulti - gyro[PITCH];
-	error[YAW] = rx[YAW] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[YAW];
+	error[ROLL] = rx[ROLL] * (float) MAX_RATE * DEGTORAD * ratemulti - gyro[ROLL];
+	error[PITCH] = rx[PITCH] * (float) MAX_RATE * DEGTORAD * ratemulti - gyro[PITCH];
+	error[YAW] = rx[YAW] * (float) MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[YAW];
 	
 pid_precalc();
 
@@ -139,7 +108,7 @@ float	throttle = mapf(rx[3], 0 , 1 , -0.1 , 1 );
 if ( throttle < 0   ) throttle = 0;
 
 // turn motors off if throttle is off and pitch / roll sticks are centered
-	if ( failsafe || (throttle < 0.001 && (!ENABLESTIX||  (fabs(rx[ROLL]) < 0.5 && fabs(rx[PITCH]) < 0.5 ) ) ) ) 
+	if ( failsafe || (throttle < 0.001f && (!ENABLESTIX||  (fabs(rx[ROLL]) < 0.5f && fabs(rx[PITCH]) < 0.5f ) ) ) ) 
 
 	{ // motors off
 		for ( int i = 0 ; i <= 3 ; i++)
@@ -147,7 +116,6 @@ if ( throttle < 0   ) throttle = 0;
 			pwm_set( i , 0 );	
 		}	
 		onground = 1;
-		pwmsum = 0;
 		thrsum = 0;
 	}
 	else
@@ -171,15 +139,7 @@ if ( throttle < 0   ) throttle = 0;
 		tempx[i] = motormap( mix[i] );
 		#endif
 		}	
-		
-		pwmsum = 0;
-		for ( int i = 0 ; i <= 3 ; i++)
-		{
-			if ( mix[i] < 0 ) mix[i] = 0;
-			if ( mix[i] > 1 ) mix[i] = 1;
-			pwmsum+= mix[i];
-		}	
-		pwmsum = pwmsum / 4;
+	
 		
 		thrsum = 0;
 		for ( int i = 0 ; i <= 3 ; i++)
@@ -195,27 +155,6 @@ if ( throttle < 0   ) throttle = 0;
 }
 
 
-/*
-float motormap_old( float input)
-{ 
-	// this is a thrust to pwm function
-	//  float 0 to 1 input and output
-	// reverse of a power to thrust graph for 8.5 mm coreless motors + hubsan prop
-	// should be ok for other motors without reduction gears.
-	// a*x^2 + b*x + c
-	// a = 0.75 , b = 0.061 , c = 0.185
-
-if (input > 1.0) input = 1.0;
-if (input < 0) input = 0;
-	
-if ( input < 0.25 ) return input;
-
-input = input*input*0.75  + input*(0.0637);
-input += 0.185;
-
-return input;   
-}
-*/
 
 float motormap( float input)
 { 
@@ -226,11 +165,11 @@ float motormap( float input)
 	// a*x^2 + b*x + c
 	// a = 0.262 , b = 0.771 , c = -0.0258
 
-if (input > 1.0) input = 1.0;
+if (input > 1.0f) input = 1.0f;
 if (input < 0) input = 0;
 
-input = input*input*0.262  + input*(0.771);
-input += -0.0258;
+input = input*input*0.262f  + input*(0.771f);
+input += -0.0258f;
 
 return input;   
 }

@@ -8,6 +8,7 @@ void spi_cson(void);
 void spi_csoff(void);
 void spi_sendbyte( int );
 int spi_sendrecvbyte( int);
+int spi_sendzerorecvbyte( void );
 
 
 
