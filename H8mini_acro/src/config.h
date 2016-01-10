@@ -107,7 +107,7 @@
 
 
 // enable serial out on back-left LED
-// serial is quite slow 
+// 57600 default
 // #define SERIAL
 
 
