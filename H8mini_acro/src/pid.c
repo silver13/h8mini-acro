@@ -45,11 +45,8 @@ float pidkd[PIDNUMBER] = { 6.8e-1 , 6.8e-1  , 5.0e-1 };
 const float outlimit[PIDNUMBER] = { 0.8 , 0.8 , 0.4 };
 
 // limit of integral term (abs)
-<<<<<<< HEAD
 const float integrallimit[PIDNUMBER] = { 0.8 , 0.8 , 0.4 };
-=======
-const float integrallimit[PIDNUMBER] = { 1.0 , 1.0 , 0.4 };
->>>>>>> origin/master
+
 
 // this Kp2 is used for a I-PD controller instead of the above  PI-D
 // set the top Kp to zero or use a mix of the 2
