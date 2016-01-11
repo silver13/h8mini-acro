@@ -8,7 +8,7 @@ This is an acro firmware for the Eachine H8mini quadcopter.
 
 
 H8 mini hardware:
- * GigaDevice GD32F130G6 cortex M3 32k flash 72Mhz CPU
+ * GigaDevice GD32F130G6 cortex M3 32k flash 48Mhz CPU
  * Invensense gyro + accelerometer, MPU-6050 compatible mostly ( responds 0x78 to who am I)
  * actually the unknown gyro is more similar to MPU-6500
  * older version board has MPU-6050 gyro, everything else the same
@@ -30,6 +30,12 @@ On the stock tx only the rate (expert) button works. Trims are not functional on
 
 #####Devo tx:
 Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used, and trims should not be required.
+
+###11.01.16 changes
+* fix for the incorrect clock setting 
+* running at 48Mhz now
+* added the new gyro to the gyro check
+* pid values are a bit different to account for the timing changes
 
 ###31.10.15 changes
 * fixed loop time interaction with pid d term
