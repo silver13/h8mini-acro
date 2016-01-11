@@ -30,6 +30,8 @@ THE SOFTWARE.
 
 #include "drv_i2c.h"
 
+#include "drv_time.h"
+
 #define I2CADDRESS 0x68  
 
 #define WAITFORSTOP
@@ -82,10 +84,11 @@ GPIO_Init(GPIOB,&GPIO_InitStructure);
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_OUT;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLUP;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
-//	printf("I2C fail xxx\n");
+
 	for ( int i = 0 ; i < 9 ; i++)
 		{// send 9 clock pulses on scl to clear any pending byte
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_RESET);	
+		delay(10);
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_SET);					
 		}
 		

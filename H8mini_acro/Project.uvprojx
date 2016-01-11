@@ -568,11 +568,6 @@
               <FilePath>.\src\main.c</FilePath>
             </File>
             <File>
-              <FileName>pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\pid.c</FilePath>
-            </File>
-            <File>
               <FileName>rx_bayang_protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\rx_bayang_protocol.c</FilePath>
@@ -586,6 +581,11 @@
               <FileName>util.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\util.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\pid.c</FilePath>
             </File>
             <File>
               <FileName>config.h</FileName>

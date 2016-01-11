@@ -7,6 +7,9 @@
 // 2Khz
 //#define PWMTOP 4095
 
+// 1Khz 
+//#define PWMTOP 8192
+
 // 8Khz
 //#define PWMTOP 1023
 
@@ -44,7 +47,7 @@ void pwm_init(void)
 
 // TIMER3 for pins A8 A9 A10
 
-    TIM_TimeBaseStructure.TIMER_Prescaler = 0;  //
+    TIM_TimeBaseStructure.TIMER_Prescaler = 5;  //
     TIM_TimeBaseStructure.TIMER_CounterMode = TIMER_COUNTER_UP;
     TIM_TimeBaseStructure.TIMER_Period = PWMTOP;
     TIM_TimeBaseStructure.TIMER_ClockDivision = TIMER_CDIV_DIV1;
@@ -85,6 +88,11 @@ void pwm_init(void)
   TIMER_Enable( TIMER1, ENABLE );
 }
 
+
+
+
+#include  <math.h>
+
 void pwm_set( uint8_t number , float pwm)
 {
 	pwm = pwm * PWMTOP ;
@@ -92,23 +100,24 @@ void pwm_set( uint8_t number , float pwm)
 	if ( pwm < 0 ) pwm = 0;
   if ( pwm > PWMTOP ) pwm = PWMTOP;
 	
-  TIM_OCInitStructure.TIMER_Pulse = (uint32_t) pwm;
+	pwm = lroundf(pwm);
+
   switch( number)
 	{
 		case 0:
-			TIMER_OC1_Init(TIMER1, &TIM_OCInitStructure);
+		  TIMER1->CHCC1 = (uint32_t) pwm; 
 		break;
 		
 		case 1:
-			TIMER_OC4_Init(TIMER3, &TIM_OCInitStructure);
+		  TIMER3->CHCC4 = (uint32_t) pwm; 
 		break;
 		
 		case 2:
-			TIMER_OC2_Init(TIMER1, &TIM_OCInitStructure);
+		  TIMER1->CHCC2 = (uint32_t) pwm; 
 		break;
 		
 		case 3:
-			TIMER_OC3_Init(TIMER1, &TIM_OCInitStructure);
+		  TIMER1->CHCC3 = (uint32_t) pwm; 
 		break;
 		
 		default:

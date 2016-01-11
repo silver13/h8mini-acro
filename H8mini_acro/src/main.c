@@ -54,12 +54,20 @@ THE SOFTWARE.
 void clk_init(void);
 
 float looptime;
+float vbattfilt = 0.0;
+
+#ifdef DEBUG
+static float totaltime = 0;
+#endif
 
 void failloop( int val);
 
 int main(void)
 {
+
 	clk_init();
+	
+	delay(1000);
 	
   gpio_init();
 
@@ -120,7 +128,6 @@ int main(void)
 	rx_init();
 	
 int count = 0;
-float vbattfilt = 0.0;
 	
 while ( count < 64 )
 {
@@ -131,10 +138,10 @@ while ( count < 64 )
 
 #ifdef SERIAL	
 		printf( "Vbatt %2.2f \n", vbattfilt );
-#ifdef NOMOTORS
+		#ifdef NOMOTORS
     printf( "NO MOTORS\n" );
-#warning "NO MOTORS"
-#endif
+		#warning "NO MOTORS"
+		#endif
 #endif
 	
 #ifdef STOP_LOWBATTERY
@@ -144,6 +151,7 @@ if ( vbattfilt < (float) STOP_LOWBATTERY_TRESH) failloop(2);
 
 	gyro_cal();
 
+	
 extern unsigned int liberror;
 if ( liberror ) 
 {
@@ -152,6 +160,7 @@ if ( liberror )
 		#endif
 		failloop(7);
 }
+
 
  static unsigned lastlooptime; 
  lastlooptime = gettime();
@@ -173,16 +182,18 @@ static float timefilt;
 	while(1)
 	{
 		// gettime() needs to be called at least once per second 
-		unsigned long time = gettime();
+		unsigned long time = gettime(); 
 		looptime = ((uint32_t)( time - lastlooptime));
 		if ( looptime <= 0 ) looptime = 1;
 		looptime = looptime * 1e-6f;
-		if ( looptime > 0.02f ) // max loop 20ms or else...
+		if ( looptime > 0.02f ) // max loop 20ms
 		{
 			failloop( 3);	
 			//endless loop			
 		}
-		#ifdef DEBUG
+	
+		#ifdef DEBUG				
+		totaltime += looptime;
 		lpf ( &timefilt , looptime, 0.998 );
 		#endif
 		lastlooptime = time;
@@ -240,6 +251,9 @@ static float timefilt;
 			else ledon( 255);	
 			} 		
 		}
+
+while ( (gettime() - time) < 1000 ) delay(10); 		
+
 		
 	}// end loop
 	
@@ -265,9 +279,9 @@ void failloop( int val)
 		for ( int i = 0 ; i < val; i++)
 		{
 		 ledon( 255);		
-		 delay(400000);
+		 delay(200000);
 		 ledoff( 255);	
-		 delay(400000);			
+		 delay(200000);			
 		}
 		delay(1600000);
 	}	

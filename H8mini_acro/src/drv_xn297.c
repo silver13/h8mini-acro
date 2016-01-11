@@ -58,21 +58,7 @@ void xn_readpayload( int *data , int size )
 	spi_csoff();
 }
 
-/*
-// write a dummy payload
-void xn_writepayload(  int size )
-{
-	int index = 0;
-	spi_cson();
-	spi_sendbyte( W_TX_PAYLOAD ); //
-	while(index<size)
-	{
-	spi_sendbyte(170);
-	index++;
-	}
-	spi_csoff();
-}
-*/
+
 
 void xn_writerxaddress(  int *addr )	
 {
@@ -84,11 +70,6 @@ spi_sendbyte(0x2a);
 	spi_sendbyte( addr[index] );
 	index++;
 	}
-//spi_sendbyte(0x00);
-//spi_sendbyte(0x00);
-//spi_sendbyte(0x00);
-//spi_sendbyte(0x00);
-//spi_sendbyte(0x00);
 spi_csoff();
 }
 

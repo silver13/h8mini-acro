@@ -27,27 +27,20 @@ THE SOFTWARE.
 #include "binary.h"
 #include "sixaxis.h"
 #include "drv_time.h"
-#include "drv_softi2c.h"
+//#include "drv_softi2c.h"
 #include "util.h"
 #include "config.h"
 #include "led.h"
+
 #include "drv_serial.h"
 
 #include "drv_i2c.h"
 
 #include <math.h>
 
-#define UNK_INVENSENSE_ADDRESS 0x68
-
-
-#if (GYRO_LOW_PASS_FILTER<=6)
-#define UNK_INVENSENSE_DLPF_CFG GYRO_LOW_PASS_FILTER
-#else
-#define UNK_INVENSENSE_DLPF_CFG   6
-#endif
 
 #ifdef DEBUG
-int gyroid = 321;
+int gyroid;
 #endif
 
 void sixaxis_init( void)
@@ -65,7 +58,7 @@ i2c_writereg( 107 , 0);
 i2c_writereg( 27 , 24);	
 	
 // Gyro DLPF low pass filter
-i2c_writereg( 26 , UNK_INVENSENSE_DLPF_CFG);	
+i2c_writereg( 26 , GYRO_LOW_PASS_FILTER);	
 	
 }
 
@@ -76,14 +69,14 @@ int sixaxis_check( void)
 	int id = i2c_readreg( 117 );
 	// new board returns 78h (unknown gyro maybe mpu-6500 compatible) marked m681
 	// old board returns 68h (mpu - 6050)
-	// a new gyro marked m540 returns (unknown)
+	// a new (rare) gyro marked m540 returns 7Dh
 	#ifdef DEBUG
 	gyroid = id;
 	#endif
 	#ifdef DISABLE_GYRO_CHECK
 	return 1;
 	#endif
-	return (0x78==id||0x68==id );
+	return (0x78==id||0x68==id||0x7d==id );
 }
 
 
@@ -97,10 +90,7 @@ float gyrocal[3];
 void gyro_read( void)
 {
 int data[6];
-	
-//softi2c_readdata( 0x68 , 67 , data , 6 );
 
-	
  i2c_readdata( 67 , data, 6 );
 	
 gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
@@ -111,11 +101,6 @@ gyro[2] = (int16_t) ((data[4]<<8) + data[5]);
 gyro[0] = gyro[0] - gyrocal[0];
 gyro[1] = gyro[1] - gyrocal[1];
 gyro[2] = gyro[2] - gyrocal[2];
-
-//printf("gyro0 %f "   , gyro[0]);
-//printf("gyro1 %f "   , gyro[1]);
-//printf("gyro2 %f "   , gyro[2]);
-//printf("\n");
 
 gyro[0] = - gyro[0];
 gyro[2] = - gyro[2];

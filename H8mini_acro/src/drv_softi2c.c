@@ -27,7 +27,6 @@ THE SOFTWARE.
 #include <stdint.h>
 #include <stdio.h>
 
-//#include "drv_spi.h"
 #include "drv_softi2c.h"
 
 //#define i2cdebug

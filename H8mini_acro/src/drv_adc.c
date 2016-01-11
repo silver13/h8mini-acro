@@ -14,8 +14,6 @@ void adc_init(void)
     RCC_ADCCLKConfig(RCC_ADCCLK_APB2_DIV6);
 
     RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_DMA1, ENABLE);		     
-
-  //  DMA_DeInit(DMA1_CHANNEL1); 
 	
     DMA_InitStructure.DMA_PeripheralBaseAddr = 0x4001244C; 
     DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)adcarray; 
@@ -32,8 +30,6 @@ void adc_init(void)
     DMA_Init(DMA1_CHANNEL1, &DMA_InitStructure);	 
   
     DMA_Enable(DMA1_CHANNEL1, ENABLE);  
-    
-  //  ADC_DeInit(&ADC_InitStructure);
 		
     ADC_InitStructure.ADC_Mode_Scan = ENABLE;		 
     ADC_InitStructure.ADC_Mode_Continuous = ENABLE;  
@@ -42,7 +38,7 @@ void adc_init(void)
     ADC_InitStructure.ADC_Channel_Number = 4;  
 		
     ADC_Init(&ADC_InitStructure);  
-    // current?
+
     ADC_RegularChannel_Config(ADC_CHANNEL_7, 1, ADC_SAMPLETIME_239POINT5);
 		// battery channel
     ADC_RegularChannel_Config(ADC_CHANNEL_5, 2, ADC_SAMPLETIME_239POINT5);
@@ -65,24 +61,19 @@ float adc_read(int channel)
 	{
 		case 0:
 		return adcarray[0] ;	
-		//break;
 		
 		case 1:
 		return mapf( (float) adcarray[1] , 2727.0 , 3050.0 , 3.77 , 4.22);
-		//break;
 		
 		case 2:
 		return adcarray[2];	
-		//break;
 		
 		case 3:
-		return adcarray[3];
-		//break;	
+		return adcarray[3];	
 		
 		default:
 			
 	  return 0;
-		//break;
 	}
 	
 	
