@@ -21,7 +21,7 @@ The firmware needs Keil.GD32F1xx_DFP.1.1.0.pack which adds support for the cpu t
 config.h - rates, other options
 pid.c - pids ( tuned for standard H8 mini)
 
-Thanks to goebish, victzh for bayang protocol reverse engineering and nrf emulation.
+Thanks to goebish, victzh for bayangtoys protocol reverse engineering and nrf emulation.
 
 Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/forums/showthread.php?t=2512604)
 
