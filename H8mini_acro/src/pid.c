@@ -51,10 +51,10 @@ float pidkd[PIDNUMBER] = { 6.8e-1 , 6.8e-1  , 5.0e-1 };
 
 
 // output limit			
-const float outlimit[PIDNUMBER] = { 0.5 , 0.5 , 0.4 };
+const float outlimit[PIDNUMBER] = { 0.8 , 0.8 , 0.4 };
 
 // limit of integral term (abs)
-const float integrallimit[PIDNUMBER] = { 0.5 , 0.5 , 0.4 };
+const float integrallimit[PIDNUMBER] = { 0.8 , 0.8 , 0.4 };
 
 
 // this Kp2 is used for a I-PD controller instead of the above  PI-D
