@@ -63,7 +63,7 @@ const float integrallimit[PIDNUMBER] = { 0.8 , 0.8 , 0.4 };
 float pidkp2[PIDNUMBER] = { 0.0e-2 , 0.0e-2 ,  0e-2 };	
 
 float ierror[PIDNUMBER] = { 0 , 0 , 0};	
-static float lastrate[PIDNUMBER];
+
 float pidoutput[PIDNUMBER];
 
 extern float error[PIDNUMBER];

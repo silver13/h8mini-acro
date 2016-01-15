@@ -177,6 +177,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>gyroid</ItemText>
         </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>gyrocal</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

@@ -113,9 +113,7 @@ for ( int i = 0 ; i < 3; i++)
 
 
 }
-
-
-int count = 0;
+ 
 
 void gyro_cal(void)
 {
@@ -135,10 +133,9 @@ while ( time - timestart < 2e6  &&  time - timemax < 15e6 )
 		looptime = time - lastlooptime;
 		lastlooptime = time;
 		if ( looptime == 0 ) looptime = 1;
-		
-		//softi2c_readdata( 0x68 , 67 , data, 6 );
+	
 
- i2c_readdata( 67 , data, 6 );
+		i2c_readdata( 67 , data, 6 );
 		
 		gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
 		gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
@@ -156,23 +153,25 @@ else
 }
 		 for ( int i = 0 ; i < 3 ; i++)
 			{
-				if ( fabs(gyro[i]) > 100 ) 
+				if ( fabs(gyro[i]) > 200 ) 
 				{
-					count = 0;
+					// restart procedure due to movement
 					timestart = gettime();
 				}
 				else
 				{
-					lpf( &gyrocal[i] , gyro[i], lpfcalc( (float) looptime , 0.5 * 1e6) );
-					count++;
+					// one eighth of calibration time
+					lpf( &gyrocal[i] , gyro[i], lpfcalc( (float) looptime , (2e6/8) ) ); 
 				}
 				
 			}
-					
+
+		while(gettime() - time < 1000) delay(1);
+		
 		time = gettime();
 	}
 
-if ( count < 100 )
+if ( time - timestart < 2e6 )
 {
 	for ( int i = 0 ; i < 3; i++)
 	{

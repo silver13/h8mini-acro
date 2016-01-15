@@ -51,8 +51,9 @@ void i2c_init( void)
   GPIO_InitStructure.GPIO_Speed = GPIO_SPEED_50MHZ;
   GPIO_InitStructure.GPIO_OType = GPIO_OTYPE_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLUP;
-
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
+	
+	delay(10);
 	// the following checks deal with issues arrising from i2c being stopped while the gyro is sending data
 	// this happens mainly in debug mode and perhaps at low voltage reset
 int i2cfail = 0;
@@ -62,9 +63,11 @@ int i2cfail = 0;
 	{
 	i2cfail = 1;	
 	}
-GPIO_InitStructure.GPIO_Pin = GPIO_PIN_7;
-GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLDOWN;
-GPIO_Init(GPIOB,&GPIO_InitStructure);	
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_7;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLDOWN;
+	GPIO_Init(GPIOB,&GPIO_InitStructure);	
+	
+		delay(10);
 	// sda is set with pulldown
 	// if sda is high it could be because the gyro is stuck sending data
 	if ( Bit_SET == GPIO_ReadInputBit( GPIOB, GPIO_PIN_7) )
@@ -84,8 +87,8 @@ GPIO_Init(GPIOB,&GPIO_InitStructure);
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_OUT;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLUP;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
-
-	for ( int i = 0 ; i < 9 ; i++)
+  delay(10);
+	for ( int i = 0 ; i < 18 ; i++)
 		{// send 9 clock pulses on scl to clear any pending byte
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_RESET);	
 		delay(10);
@@ -102,6 +105,13 @@ GPIO_Init(GPIOB,&GPIO_InitStructure);
   GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLUP;
 
   GPIO_Init(GPIOB,&GPIO_InitStructure);
+	
+	RCC_APB1PeriphReset_Enable(RCC_APB1PERIPH_I2C1RST, ENABLE);
+	
+	delay(10);
+	
+	RCC_APB1PeriphReset_Enable(RCC_APB1PERIPH_I2C1RST, DISABLE);
+	
 	
     GPIO_PinAFConfig(GPIOB,GPIO_PINSOURCE6,GPIO_AF_1);
     GPIO_PinAFConfig(GPIOB,GPIO_PINSOURCE7,GPIO_AF_1);
