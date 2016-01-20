@@ -115,6 +115,8 @@ for ( int i = 0 ; i < 3; i++)
 }
  
 
+#define CAL_TIME 2e6
+
 void gyro_cal(void)
 {
 int data[6];
@@ -124,22 +126,29 @@ unsigned long timestart = time;
 unsigned long timemax = time;
 unsigned long lastlooptime;
 
+float gyro[3];	
+float limit[3];
 	
+ for ( int i = 0 ; i < 3 ; i++)
+			{
+			limit[i] = gyrocal[i];
+			}
+
 // 2 and 15 seconds
-while ( time - timestart < 2e6  &&  time - timemax < 15e6 )
+while ( time - timestart < CAL_TIME  &&  time - timemax < 15e6 )
 	{	
 		
 		unsigned long looptime; 
 		looptime = time - lastlooptime;
 		lastlooptime = time;
 		if ( looptime == 0 ) looptime = 1;
-	
 
-		i2c_readdata( 67 , data, 6 );
+	i2c_readdata( 67 , data, 6 );
 		
 		gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
 		gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
 		gyro[2] = (int16_t) ((data[4]<<8) + data[5]);	
+	
 		
 if ( (time - timestart)%200000 > 100000) 
 {
@@ -151,39 +160,51 @@ else
 	ledon(B00001010);
 	ledoff(B00000101);
 }
+		
 		 for ( int i = 0 ; i < 3 ; i++)
 			{
-				if ( fabs(gyro[i]) > 200 ) 
-				{
-					// restart procedure due to movement
-					timestart = gettime();
-				}
-				else
-				{
-					// one eighth of calibration time
-					lpf( &gyrocal[i] , gyro[i], lpfcalc( (float) looptime , (2e6/8) ) ); 
-				}
+
+					if ( gyro[i] > limit[i] )  limit[i] += 0.1f; // 100 gyro bias / second change
+					if ( gyro[i] < limit[i] )  limit[i] -= 0.1f;
 				
+					limitf( &limit[i] , 800);
+				
+					if ( fabs(gyro[i]) > 100+ fabs(limit[i]) ) 
+					{										
+						timestart = gettime();
+					}
+					else
+					{						
+					lpf( &gyrocal[i] , gyro[i], lpfcalc( (float) looptime , 0.5 * 1e6) );
+				
+					}
+
 			}
 
-		while(gettime() - time < 1000) delay(1);
-		
-		time = gettime();
+while ( (gettime() - time) < 1000 ) delay(10); 				
+time = gettime();
+
 	}
 
-if ( time - timestart < 2e6 )
+	
+
+if ( time - timestart < CAL_TIME )
 {
 	for ( int i = 0 ; i < 3; i++)
 	{
-		gyrocal[i] = 0;
+	gyrocal[i] = 0;
+
 	}
+	
 }
+
 	
 #ifdef SERIAL	
 printf("gyro calibration  %f %f %f \n "   , gyrocal[0] , gyrocal[1] , gyrocal[2]);
 #endif
 	
 }
+
 
 
 
