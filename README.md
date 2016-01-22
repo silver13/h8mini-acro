@@ -33,6 +33,16 @@ Channels work as intended except the rate/expert channel which is always on. Dyn
 
 Assign the extra channels to the desired functions in config.h. Right now there is only headless and hi/low rates to set if needed. The defaults should be ok too. ( no headless / rates high always)
 
+#####Gyro calibration
+Gyro calibration runs automatically after power up, and usually completes within 2-4 seconds. If for some reason the calibration fails to complete, such as if there is movement, it will eventually time out in 15 seconds.
+
+During calibration the leds flash in an "X" like pattern. If movement is detected the flashing stops and only 2 leds illuminate. The flashing resumes when movement stops.
+
+#####Led error codes
+In some cases the leds are used to indicate error conditions, and as such they flash a number of times, then a brake occurs, then the pattern repeats. In all such cases the quadcopter will not respond to commands, a power cycle will be required.
+
+The most common of this is 2 flashes = low battery, usually caused by an in-flight reset due to low battery. All other flashes are non user serviceable. The description is in main.c.
+
 ###23.01.16
 * gyro bias fix for larger biases that occur sometimes
 
