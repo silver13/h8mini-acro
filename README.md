@@ -31,6 +31,11 @@ On the stock tx only the rate (expert) button works. Trims are not functional on
 #####Devo tx:
 Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used, and trims should not be required.
 
+Assign the extra channels to the desired functions in config.h. Right now there is only headless and hi/low rates to set if needed. The defaults should be ok too. ( no headless / rates high always)
+
+###23.01.16
+* gyro bias fix for larger biases that occur sometimes
+
 ###11.01.16 changes
 * fix for the incorrect clock setting 
 * running at 48Mhz now
