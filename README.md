@@ -43,6 +43,15 @@ In some cases the leds are used to indicate error conditions, and as such they f
 
 The most common of this is 2 flashes = low battery, usually caused by an in-flight reset due to low battery. All other flashes are non user serviceable. The description is in main.c.
 
+#####Led flash patterns
+At startup the leds should flash a gyro calibration pattern for 2 - 15 seconds, in a cross like pattern. Movement stops the flashing while it occurs.
+
+Following should be a fast (20 times/sec) flash indicating that the quad is waiting for bind. 
+
+If binding is completed the leds should light up continuously, while if tx connection is lost they will flash a short time a couple of times / second.
+
+Overriding all this patterns except gyro calibration, is the low battery flash which is a slow, equally spaced on and off flash. 
+
 ###23.01.16
 * gyro bias fix for larger biases that occur sometimes
 
