@@ -69,8 +69,7 @@ return time;
 
 void delay(uint32_t data)
 {
-	data= data*16;
-  while(data--);
+	volatile uint32_t count;
+	count = data * 16;
+	while (count--);
 }
-
-
