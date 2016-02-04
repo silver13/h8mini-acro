@@ -12,7 +12,9 @@ int fmc_erasepage( void)
 	int test = FMC_ErasePage( (uint32_t)0x08007C00 ); 
 	FMC_WaitReady(4000);
 	FMC_Lock();
+#ifdef SERIAL
 	if ( test == FMC_WRPERR) printf( "FMC page erase error\n");
+#endif
 	return ( test == FMC_WRPERR);
 }
 
@@ -23,7 +25,9 @@ int fmc_write( unsigned int address , int data)
  int	test = FMC_ProgramWord( address*4 + offset , data );
  FMC_WaitReady(4000);
  FMC_Lock();
+#ifdef SERIAL
  if ( test == FMC_BSY||test == FMC_WRPERR||test == FMC_PGERR||test == FMC_TIMEOUT_ERR	) printf( "FMC program error %d\n" , test );	
+#endif
 
  return ( test == FMC_WRPERR);
 }
