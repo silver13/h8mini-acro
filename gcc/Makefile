@@ -8,11 +8,12 @@ AS=arm-none-eabi-as
 CP=arm-none-eabi-objcopy
 OD=arm-none-eabi-objdump
 
+
 DEFS = -DUSE_STDPERIPH_DRIVER
 STARTUP = startup.s
 
 MCU = cortex-m3
-MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mthumb-interwork
+MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mthumb-interwork -ffast-math -fdata-sections -ffunction-sections
 
 topdir = ..
 INCLUDES = -I$(topdir)/H8mini-test/src/ \
@@ -21,7 +22,7 @@ INCLUDES = -I$(topdir)/H8mini-test/src/ \
 
 OPTIMIZE = -Os
 
-CFLAGS = $(MCFLAGS)  $(OPTIMIZE)  $(DEFS) -I. -I./ $(INCLUDES)  -Wl,-T,flash.ld -std=gnu99
+CFLAGS = $(MCFLAGS)  $(OPTIMIZE)  $(DEFS) -I. -I./ $(INCLUDES)  -Wl,-T,flash.ld,-Map,output.map,--gc-sections -std=gnu99 
 AFLAGS = $(MCFLAGS)
 
 SRC = $(wildcard $(topdir)/H8mini_acro/src/*.c) \
@@ -49,6 +50,7 @@ $(TARGET): $(EXECUTABLE)
 
 $(EXECUTABLE): $(SRC) $(STARTUP)
 	$(CC) $(CFLAGS) $^ -lm -lnosys -o $@
+	
 
 clean:
 	rm -f Startup.lst $(TARGET) $(TARGET).lst $(OBJ) $(AUTOGEN) \
