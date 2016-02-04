@@ -52,6 +52,16 @@ If binding is completed the leds should light up continuously, while if tx conne
 
 Overriding all this patterns except gyro calibration, is the low battery flash which is a slow, equally spaced on and off flash. 
 
+####Linux support
+```
+Just a basic compilation under Linux:
+$ cd gcc
+$ make
+$ st-flash write /dev/sg0 h8mini 0x08000000
+```
+###04.02.16
+* added linux compilation support by balrog-kun
+
 ###23.01.16
 * gyro bias fix for larger biases that occur sometimes
 
