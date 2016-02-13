@@ -8,3 +8,10 @@ void lpf( float *out, float in , float coeff);
 float rcexpo ( float x , float exp );
 
 void limitf ( float *input , const float limit);
+
+void TS( void);
+void TE( void);
+
+float fastsin( float x );
+float fastcos( float x );
+

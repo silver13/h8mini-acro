@@ -284,7 +284,7 @@ void failloop( int val)
 		 ledoff( 255);	
 		 delay(200000);			
 		}
-		delay(1600000);
+		delay(800000);
 	}	
 	
 }

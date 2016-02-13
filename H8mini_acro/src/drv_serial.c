@@ -6,6 +6,7 @@
 
 #define SERIAL_BUFFER_SIZE 64
 
+#ifdef SERIAL 
 
 uint8_t buffer[SERIAL_BUFFER_SIZE];
 char buffer_start = 0;
@@ -14,12 +15,10 @@ char buffer_end = 1;
 
 int fputc(int ch, FILE *f)
 {	
-#ifdef SERIAL 
 	buffer[buffer_end] =(char) ch;
 	buffer_end++;
 	buffer_end=buffer_end%(SERIAL_BUFFER_SIZE);
 	NVIC_EnableIRQ( USART2_IRQn);
-#endif
   return ch;
 }
 
@@ -27,7 +26,6 @@ int fputc(int ch, FILE *f)
 
 void USART2_IRQHandler(void)
 {
-#ifdef SERIAL 
 	if ( buffer_end != buffer_start  ) 
 	{
 		USART_DataSend( USART2 , buffer[buffer_start] );
@@ -38,7 +36,6 @@ void USART2_IRQHandler(void)
 	{
 		 NVIC_DisableIRQ( USART2_IRQn);
 	}
-#endif
 }
 
 void serial_init(void)
@@ -80,5 +77,5 @@ void serial_init(void)
 
 
 }
-
+#endif
 

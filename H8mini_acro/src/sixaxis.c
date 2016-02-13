@@ -38,6 +38,7 @@ THE SOFTWARE.
 
 #include <math.h>
 
+extern float lpffilter( float in,int num );
 
 #ifdef DEBUG
 int gyroid;
@@ -93,22 +94,29 @@ int data[6];
 
  i2c_readdata( 67 , data, 6 );
 	
-gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
-gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
-gyro[2] = (int16_t) ((data[4]<<8) + data[5]);
+float gyronew[3];
+	
+gyronew[1] = (int16_t) ((data[0]<<8) + data[1]);
+gyronew[0] = (int16_t) ((data[2]<<8) + data[3]);
+gyronew[2] = (int16_t) ((data[4]<<8) + data[5]);
 
 
-gyro[0] = gyro[0] - gyrocal[0];
-gyro[1] = gyro[1] - gyrocal[1];
-gyro[2] = gyro[2] - gyrocal[2];
+gyronew[0] = gyronew[0] - gyrocal[0];
+gyronew[1] = gyronew[1] - gyrocal[1];
+gyronew[2] = gyronew[2] - gyrocal[2];
 
-gyro[0] = - gyro[0];
-gyro[2] = - gyro[2];
+gyronew[0] = - gyronew[0];
+gyronew[2] = - gyronew[2];
 
 
 for ( int i = 0 ; i < 3; i++)
 {
-	gyro[i] = gyro[i] *  0.061035156f * 0.017453292f ;
+	gyronew[i] = gyronew[i] *  0.061035156f * 0.017453292f ;
+#ifndef SOFT_LPF_NONE	
+	gyro[i]= lpffilter(  gyronew[i], i );
+#else
+	gyro[i] = gyronew[i];
+#endif		
 }
 
 
@@ -124,7 +132,7 @@ int data[6];
 unsigned long time = gettime();
 unsigned long timestart = time;
 unsigned long timemax = time;
-unsigned long lastlooptime;
+unsigned long lastlooptime = time;
 
 float gyro[3];	
 float limit[3];

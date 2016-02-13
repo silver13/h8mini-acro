@@ -583,6 +583,11 @@
               <FilePath>.\src\util.c</FilePath>
             </File>
             <File>
+              <FileName>filter.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\src\filter.cpp</FilePath>
+            </File>
+            <File>
               <FileName>pid.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\pid.c</FilePath>

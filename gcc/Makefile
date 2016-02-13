@@ -26,6 +26,7 @@ CFLAGS = $(MCFLAGS)  $(OPTIMIZE)  $(DEFS) -I. -I./ $(INCLUDES)  -Wl,-T,flash.ld,
 AFLAGS = $(MCFLAGS)
 
 SRC = $(wildcard $(topdir)/H8mini_acro/src/*.c) \
+	$(wildcard $(topdir)/H8mini_acro/src/*.cpp) \
 	$(topdir)/CMSIS/system_gd32f1x0.c \
 	core_cm3.c \
 	$(topdir)/Peripherals/src/gd32f1x0_adc.c \

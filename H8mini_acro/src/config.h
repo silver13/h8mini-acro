@@ -61,6 +61,17 @@
 // 4 , 5, 6
 #define GYRO_LOW_PASS_FILTER 3
 
+// software gyro lpf ( iir )
+// set only one below
+//#define SOFT_LPF_1ST_023HZ
+//#define SOFT_LPF_1ST_043HZ
+//#define SOFT_LPF_1ST_100HZ
+//#define SOFT_LPF_2ND_043HZ
+#define SOFT_LPF_2ND_088HZ
+//#define SOFT_LPF_4TH_088HZ
+//#define SOFT_LPF_4TH_160HZ
+//#define SOFT_LPF_4TH_250HZ
+//#define SOFT_LPF_NONE
 
 
 
@@ -91,14 +102,23 @@
 
 
 
+// enable motor filter
+// hanning 3 sample fir filter
+#define MOTOR_FILTER
 
 
 
+// pwm frequency for motor control
+// a higher frequency makes the motors more linear
+#define PWM_490HZ
+//#define PWM_8KHZ
+//#define PWM_16KHZ
+//#define PWM_24KHZ
+//#define PWM_32KHZ
 
 
 
-
-
+//##################################
 // debug / other things
 // this should not be usually changed
 
@@ -110,6 +130,8 @@
 // 57600 default
 // #define SERIAL
 
+// invert yaw pid for hubsan motors
+//#define INVERT_YAW_PID
 
 // debug things
 // #define DEBUG

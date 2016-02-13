@@ -58,11 +58,12 @@ void i2c_init( void)
 	// this happens mainly in debug mode and perhaps at low voltage reset
 int i2cfail = 0;
 	// sda is set with pullup
-	// id sda is low the gyro might have become stuck while waiting for clock(and is sending a "zero")
+	// if sda is low the gyro might have become stuck while waiting for clock(and is sending a "zero")
 	if ( Bit_RESET == GPIO_ReadInputBit( GPIOB, GPIO_PIN_7) )
 	{
 	i2cfail = 1;	
 	}
+delay(10);
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_7;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLDOWN;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);	
@@ -91,8 +92,13 @@ int i2cfail = 0;
 	for ( int i = 0 ; i < 18 ; i++)
 		{// send 9 clock pulses on scl to clear any pending byte
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_RESET);	
-		delay(10);
+			delay(25);
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_SET);					
+			delay(5);
+		if ( Bit_RESET != GPIO_ReadInputBit( GPIOB, GPIO_PIN_7) )
+			{
+				break;
+			}
 		}
 		
 	}
@@ -105,13 +111,6 @@ int i2cfail = 0;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLUP;
 
   GPIO_Init(GPIOB,&GPIO_InitStructure);
-	
-	RCC_APB1PeriphReset_Enable(RCC_APB1PERIPH_I2C1RST, ENABLE);
-	
-	delay(10);
-	
-	RCC_APB1PeriphReset_Enable(RCC_APB1PERIPH_I2C1RST, DISABLE);
-	
 	
     GPIO_PinAFConfig(GPIOB,GPIO_PINSOURCE6,GPIO_AF_1);
     GPIO_PinAFConfig(GPIOB,GPIO_PINSOURCE7,GPIO_AF_1);
