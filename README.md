@@ -56,6 +56,11 @@ Overriding all this patterns except gyro calibration, is the low battery flash w
 See post by balrog-kun:
 http://www.rcgroups.com/forums/showpost.php?p=33971694&postcount=743
 
+###14.02.16
+* trickle down update:
+* added soft gyro filters
+* added motor filter
+* added config.h pwm settings
 
 ###04.02.16
 * added linux compilation support by balrog-kun
