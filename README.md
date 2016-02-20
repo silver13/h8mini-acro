@@ -18,12 +18,18 @@ GD32F130 datasheet (hardware): [GD32F130 (hw)](https://app.box.com/s/3zi661iffmi
 
 The firmware needs Keil.GD32F1xx_DFP.1.1.0.pack which adds support for the cpu to Keil (5.15 used).
 
-config.h - rates, other options
-pid.c - pids ( tuned for standard H8 mini)
-
 Thanks to goebish, victzh for bayangtoys protocol reverse engineering and nrf emulation.
 
 Firmware thread featuring flashing info: [rcgroups.com](http://www.rcgroups.com/forums/showthread.php?t=2512604)
+
+
+###Changing settings
+
+config.h - all settings: rates, switches/buttons config, other options
+
+pid.c - pids ( tuned for standard H8 mini)
+
+After changing settings, remember to click compile first, not just upload.
 
 #####Stock tx:
 On the stock tx only the rate (expert) button works. Trims are not functional on the stock tx.
