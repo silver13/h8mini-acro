@@ -59,8 +59,8 @@ If binding is completed the leds should light up continuously, while if tx conne
 Overriding all this patterns except gyro calibration, is the low battery flash which is a slow, equally spaced on and off flash. 
 
 ####Linux support
-See post by balrog-kun:
-http://www.rcgroups.com/forums/showpost.php?p=33971694&postcount=743
+See post by :
+http://www.rcgroups.com/forums/showpost.php?p=34293596&postcount=1248
 
 ###14.02.16
 * trickle down update:
