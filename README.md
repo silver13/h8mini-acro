@@ -62,6 +62,9 @@ Overriding all this patterns except gyro calibration, is the low battery flash w
 See post by :
 http://www.rcgroups.com/forums/showpost.php?p=34293596&postcount=1248
 
+###Wiki
+http://sirdomsen.diskstation.me/dokuwiki/doku.php?id=start
+
 ###14.02.16
 * trickle down update:
 * added soft gyro filters
